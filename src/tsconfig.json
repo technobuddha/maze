@@ -1,0 +1,15 @@
+// 🚨
+// 🚨 CHANGES TO THIS FILE WILL BE OVERRIDDEN
+// 🚨
+{
+  "compilerOptions": {
+    "composite": true,
+    "types": [],
+    "lib": ["esnext", "dom"],
+    "rootDir": ".",
+    "outDir": "../dist"
+  },
+  "extends": "../tsconfig.base.json",
+  "include": ["**/*.ts"],
+  "exclude": []
+}

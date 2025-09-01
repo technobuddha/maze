@@ -1,0 +1,9 @@
+.cspell/
+.vscode/
+.yarn/
+doc/
+.editorconfig
+.prettierignore
+cspell.json
+*.config.*
+*.tsbuildinfo

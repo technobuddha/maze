@@ -1,0 +1,43 @@
+{
+  "name": "@technobuddha/maze",
+  "version": "0.1.0",
+  "description": "Maze generation and solving library.",
+  "author": {
+    "name": "Phil Hill",
+    "email": "phil@technobuddha.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/technobuddha/maze"
+  },
+  "bugs": {
+    "url": "https://github.com/technobuddha/maze/issues"
+  },
+  "homepage": "https://github.com/technobuddha/maze#readme",
+  "type": "module",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "packageManager": "yarn@4.9.4",
+  "dependencies": {
+    "@technobuddha/library": "2.0.0",
+    "colorjs.io": "0.5.2"
+  },
+  "devDependencies": {
+    "@technobuddha/project": "0.99.21",
+    "typedoc": "0.28.12"
+  },
+  "scripts": {
+    "build": "tsc -p src",
+    "lint": "npx eslint src",
+    "spell": "npx cspell src"
+  },
+  "technobuddhaProject": {
+    "version": "0.99.21",
+    "created": "2025-09-01T21:21:26.150Z",
+    "updated": "2025-09-12T13:57:33.120Z"
+  }
+}

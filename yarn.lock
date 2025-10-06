@@ -762,6 +762,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@humanwhocodes/momoa@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "@humanwhocodes/momoa@npm:2.0.4"
+  checksum: 10c0/ff081fb5239eb23ae40c59bd51e8128d34b043be3b7c2adb2522cdff51b01ec3129e57d5a24a1eb3a082159d5b41fddfbaffc4cf46cae4fe11a51393f60424fd
+  languageName: node
+  linkType: hard
+
 "@humanwhocodes/retry@npm:^0.3.0":
   version: 0.3.1
   resolution: "@humanwhocodes/retry@npm:0.3.1"
@@ -1228,10 +1235,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@technobuddha/library@npm:2.0.0":
-  version: 2.0.0
-  resolution: "@technobuddha/library@npm:2.0.0"
-  checksum: 10c0/58d358f197173a745459a1376a4cb5d9f12a892ff5fadbab1bdf25702fe7ec74ca261140d5cdc5a9e52a0426407337897ec40a9ea35712777da1e061d543bd9c
+"@technobuddha/builder@npm:0.99.21":
+  version: 0.99.21
+  resolution: "@technobuddha/builder@npm:0.99.21"
+  dependencies:
+    "@technobuddha/library": "npm:2.0.3"
+    ajv: "npm:8.17.1"
+    ansi-escapes: "npm:7.1.0"
+    better-ajv-errors: "npm:2.0.2"
+    chalk: "npm:5.6.2"
+    cosmiconfig: "npm:9.0.0"
+    package-directory: "npm:8.1.0"
+    watch: "npm:1.0.2"
+  bin:
+    build: dist/main.js
+  checksum: 10c0/bac59d73f998925ee44b15c517d5b6eb6d10b6a8e6e519afba1dbf9fe687745d426c9c14aa8f59d58b4aa121a3bc26ce05886492a3aed800630b08b60985025c
+  languageName: node
+  linkType: hard
+
+"@technobuddha/library@npm:2.0.3":
+  version: 2.0.3
+  resolution: "@technobuddha/library@npm:2.0.3"
+  checksum: 10c0/e55e62f2f000c065ae237ffd3301d004b2b957fb1c6d1590e594b5ce21865481f1e38093d43a499bced184acbc8039c79e117c5648539d65ada4934d69423854
   languageName: node
   linkType: hard
 
@@ -1239,16 +1264,17 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@technobuddha/maze@workspace:."
   dependencies:
-    "@technobuddha/library": "npm:2.0.0"
-    "@technobuddha/project": "npm:0.99.21"
+    "@technobuddha/builder": "npm:0.99.21"
+    "@technobuddha/library": "npm:2.0.3"
+    "@technobuddha/project": "npm:0.99.51"
     colorjs.io: "npm:0.5.2"
     typedoc: "npm:0.28.12"
   languageName: unknown
   linkType: soft
 
-"@technobuddha/project@npm:0.99.21":
-  version: 0.99.21
-  resolution: "@technobuddha/project@npm:0.99.21"
+"@technobuddha/project@npm:0.99.51":
+  version: 0.99.51
+  resolution: "@technobuddha/project@npm:0.99.51"
   dependencies:
     "@eslint/js": "npm:9.35.0"
     "@inquirer/prompts": "npm:7.8.4"
@@ -1270,7 +1296,6 @@ __metadata:
     eslint-plugin-eslint-comments: "npm:3.2.0"
     eslint-plugin-github: "npm:6.0.0"
     eslint-plugin-import-x: "npm:4.16.1"
-    eslint-plugin-istanbul: "npm:0.1.2"
     eslint-plugin-jest: "npm:29.0.1"
     eslint-plugin-jest-extended: "npm:3.0.0"
     eslint-plugin-jira-ticket-todo-comment: "npm:1.0.5"
@@ -1297,8 +1322,8 @@ __metadata:
     typescript: "npm:5.9.2"
     watch: "npm:1.0.2"
   bin:
-    tbproject: bin/tbproject
-  checksum: 10c0/dc040ce312a46532fa387fe6708d4cb19f20a096a738a547f8b6f41f99737bbb7b36d4e910fa0430efc60eb50239711669b8513470f1cdd44b429ada94db27b8
+    tbproject: dist/tbproject/tbproject.js
+  checksum: 10c0/7df0a36384c76fc226b64652ac9f3972995683f3a59b92f502d40f001e27a560c72b66cd7cb00f49b5490a905bbf6761b1224ce742af7fb89eebb113ef1aa6c7
   languageName: node
   linkType: hard
 
@@ -1900,6 +1925,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ajv@npm:8.17.1":
+  version: 8.17.1
+  resolution: "ajv@npm:8.17.1"
+  dependencies:
+    fast-deep-equal: "npm:^3.1.3"
+    fast-uri: "npm:^3.0.1"
+    json-schema-traverse: "npm:^1.0.0"
+    require-from-string: "npm:^2.0.2"
+  checksum: 10c0/ec3ba10a573c6b60f94639ffc53526275917a2df6810e4ab5a6b959d87459f9ef3f00d5e7865b82677cb7d21590355b34da14d1d0b9c32d75f95a187e76fff35
+  languageName: node
+  linkType: hard
+
 "ajv@npm:^6.12.4":
   version: 6.12.6
   resolution: "ajv@npm:6.12.6"
@@ -2134,6 +2171,21 @@ __metadata:
   version: 1.0.2
   resolution: "balanced-match@npm:1.0.2"
   checksum: 10c0/9308baf0a7e4838a82bbfd11e01b1cb0f0cf2893bc1676c27c2a8c0e70cbae1c59120c3268517a8ae7fb6376b4639ef81ca22582611dbee4ed28df945134aaee
+  languageName: node
+  linkType: hard
+
+"better-ajv-errors@npm:2.0.2":
+  version: 2.0.2
+  resolution: "better-ajv-errors@npm:2.0.2"
+  dependencies:
+    "@babel/code-frame": "npm:^7.27.1"
+    "@humanwhocodes/momoa": "npm:^2.0.4"
+    chalk: "npm:^4.1.2"
+    jsonpointer: "npm:^5.0.1"
+    leven: "npm:^3.1.0 < 4"
+  peerDependencies:
+    ajv: 4.11.8 - 8
+  checksum: 10c0/4265d9786ef821dec3a37abfc8c872ea460f79a0de9234c7c029234e5f1523da10fd1e299c5039ec6a7fedb20372638afdb1fa59de281afea84c006c9b26b146
   languageName: node
   linkType: hard
 
@@ -3160,15 +3212,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-istanbul@npm:0.1.2":
-  version: 0.1.2
-  resolution: "eslint-plugin-istanbul@npm:0.1.2"
-  peerDependencies:
-    eslint: ^6.0.0 || ^7.0.0
-  checksum: 10c0/fa99f156f2b43771e6c719000c7c11b1d35807c8ecd31ef560ad1d9cfb5f05bb723cae929496418a79e2682c9f8b074fd4b9fe036e972d4581979ec8a74377fd
-  languageName: node
-  linkType: hard
-
 "eslint-plugin-jest-extended@npm:3.0.0":
   version: 3.0.0
   resolution: "eslint-plugin-jest-extended@npm:3.0.0"
@@ -3596,6 +3639,13 @@ __metadata:
   version: 2.0.6
   resolution: "fast-levenshtein@npm:2.0.6"
   checksum: 10c0/111972b37338bcb88f7d9e2c5907862c280ebf4234433b95bc611e518d192ccb2d38119c4ac86e26b668d75f7f3894f4ff5c4982899afced7ca78633b08287c4
+  languageName: node
+  linkType: hard
+
+"fast-uri@npm:^3.0.1":
+  version: 3.1.0
+  resolution: "fast-uri@npm:3.1.0"
+  checksum: 10c0/44364adca566f70f40d1e9b772c923138d47efeac2ae9732a872baafd77061f26b097ba2f68f0892885ad177becd065520412b8ffeec34b16c99433c5b9e2de7
   languageName: node
   linkType: hard
 
@@ -4508,6 +4558,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jsonpointer@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "jsonpointer@npm:5.0.1"
+  checksum: 10c0/89929e58b400fcb96928c0504fcf4fc3f919d81e9543ceb055df125538470ee25290bb4984251e172e6ef8fcc55761eb998c118da763a82051ad89d4cb073fe7
+  languageName: node
+  linkType: hard
+
 "jsx-ast-utils@npm:^2.4.1 || ^3.0.0, jsx-ast-utils@npm:^3.3.2, jsx-ast-utils@npm:^3.3.5":
   version: 3.3.5
   resolution: "jsx-ast-utils@npm:3.3.5"
@@ -4542,6 +4599,13 @@ __metadata:
   dependencies:
     language-subtag-registry: "npm:^0.3.20"
   checksum: 10c0/9ab911213c4bd8bd583c850201c17794e52cb0660d1ab6e32558aadc8324abebf6844e46f92b80a5d600d0fbba7eface2c207bfaf270a1c7fd539e4c3a880bff
+  languageName: node
+  linkType: hard
+
+"leven@npm:^3.1.0 < 4":
+  version: 3.1.0
+  resolution: "leven@npm:3.1.0"
+  checksum: 10c0/cd778ba3fbab0f4d0500b7e87d1f6e1f041507c56fdcd47e8256a3012c98aaee371d4c15e0a76e0386107af2d42e2b7466160a2d80688aaa03e66e49949f42df
   languageName: node
   linkType: hard
 
@@ -4921,6 +4985,15 @@ __metadata:
   dependencies:
     p-limit: "npm:^3.0.2"
   checksum: 10c0/2290d627ab7903b8b70d11d384fee714b797f6040d9278932754a6860845c4d3190603a0772a663c8cb5a7b21d1b16acb3a6487ebcafa9773094edc3dfe6009a
+  languageName: node
+  linkType: hard
+
+"package-directory@npm:8.1.0":
+  version: 8.1.0
+  resolution: "package-directory@npm:8.1.0"
+  dependencies:
+    find-up-simple: "npm:^1.0.0"
+  checksum: 10c0/29eee99ac9979dc852bbaab64968123ba44abaa8f2d49add065101612db81f3d4ac1eb27df3b1893878cd67dd8b5c36186876a139ec4fdd6a755abc810ce2749
   languageName: node
   linkType: hard
 

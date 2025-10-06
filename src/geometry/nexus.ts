@@ -18,7 +18,7 @@ export type NexusProperties = {
   barriers: Wall;
   mask?: boolean;
   distance?: number;
-  rect: Rect;
+  drawingBox: Rect;
 };
 
 export class Nexus {
@@ -43,7 +43,7 @@ export class Nexus {
     barriers,
     mask = false,
     distance = Infinity,
-    rect,
+    drawingBox: rect,
   }: NexusProperties) {
     this.x = x;
     this.y = y;

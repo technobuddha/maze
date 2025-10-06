@@ -143,7 +143,7 @@ export class DotMaze extends Maze {
 
   // Pillars are always displayed
   public override drawPillars(cell: Cell, color = this.color.wall): void {
-    for (const pillar of this.pillars) {
+    for (const pillar of this.matrix.pillars) {
       this.drawPillar(cell, pillar, color);
     }
   }
@@ -762,7 +762,7 @@ export class DotMaze extends Maze {
     }
   }
 
-  protected getRect(cell: Cell): Rect {
+  protected drawingBox(cell: Cell): Rect {
     const { x5, x9, y5, y9 } = this.cellOffsets(cell);
 
     return { x: x5, y: y5, width: x9 - x5, height: y9 - y5 };

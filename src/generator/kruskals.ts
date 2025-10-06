@@ -80,7 +80,7 @@ export class Kruskals extends MazeGenerator {
     while (this.preferreds.length > 0) {
       const preferred = this.preferreds.pop()!;
       const cell1 = { ...preferred };
-      const cell2 = this.maze.move(cell1, preferred.direction);
+      const cell2 = this.maze.walk(cell1, preferred.direction).target;
 
       const idx1 = this.getCellIndex(cell1);
       const idx2 = this.getCellIndex(cell2);

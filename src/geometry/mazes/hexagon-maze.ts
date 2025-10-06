@@ -489,7 +489,7 @@ export class HexagonMaze extends Maze {
     }
   }
 
-  protected getRect(cell: Cell): Rect {
+  protected drawingBox(cell: Cell): Rect {
     // Use the larger hexagon coordinates that include wall areas
     // Based on the drawFloor method coordinates for maximum usable space
     const { x0, x9, xg, xm, y0, y9, yi } = this.cellOffsets(cell);

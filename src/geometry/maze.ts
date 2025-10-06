@@ -221,7 +221,7 @@ export abstract class Maze extends MazeGeometry {
     for (const cell of this.cellsInMaze()) {
       const wall = this.nexus(cell).walls;
       for (const direction of (Object.keys(wall) as Direction[]).filter((d) => wall[d])) {
-        const move = this.move(cell, direction);
+        const move = this.walk(cell, direction).target;
         if (move && this.inMaze(move)) {
           wall[direction] = false;
         }
@@ -583,7 +583,7 @@ export abstract class Maze extends MazeGeometry {
   //#endregion
   //#region Construction
   public addWall(cell: Cell, direction: Direction, draw = true): void {
-    const cell2 = this.move(cell, direction);
+    const cell2 = this.walk(cell, direction).target;
     if (this.inMaze(cell) && this.inMaze(cell2)) {
       this.nexus(cell).addWall(direction);
 
@@ -602,7 +602,7 @@ export abstract class Maze extends MazeGeometry {
       this.nexus(cell).removeWall(direction);
       this.drawCell(cell);
 
-      const cell2 = this.move(cell, direction);
+      const cell2 = this.walk(cell, direction).target;
       if (this.inMaze(cell2)) {
         const direction2 = this.opposite(cell2.facing);
 
@@ -660,7 +660,7 @@ export abstract class Maze extends MazeGeometry {
     const nexus = this.nexus(cell);
     const { walls, barriers, elevated } = nexus;
 
-    for (const direction of this.directions) {
+    for (const direction of this.matrix.directions) {
       if (walls[direction] === true || barriers[direction]) {
         this.drawWall(cell, direction, wallColor);
       } else if (walls[direction] === false) {
@@ -684,7 +684,7 @@ export abstract class Maze extends MazeGeometry {
   public drawPillars(cell: Cell, color = this.color.wall): void {
     const { walls } = this.nexus(cell);
 
-    for (const pillar of this.pillars) {
+    for (const pillar of this.matrix.pillars) {
       if (pillar[0] in walls && pillar[1] in walls) {
         this.drawPillar(cell, pillar, color);
       }
@@ -721,7 +721,7 @@ export abstract class Maze extends MazeGeometry {
       if (cell.direction === '?') {
         this.renderCircle(rect, color);
       } else {
-        const angle = this.angleMatrix[cell.direction] ?? 0;
+        const angle = this.matrix.angle[cell.direction] ?? 0;
 
         this.renderArrow(rect, angle, color);
       }
@@ -849,9 +849,9 @@ export abstract class Maze extends MazeGeometry {
   //#endregion
   //#region Bridge
   public bridges(cell: Cell): Bridge[] {
-    const pieces = this.bridgeMatrix?.pieces ?? 1;
-    const connect = this.bridgeMatrix?.connect ?? {};
-    return (this.bridgeMatrix?.layouts[this.cellKind(cell)] ?? []).map((layout) => ({
+    const pieces = this.matrix.bridge?.pieces ?? 1;
+    const connect = this.matrix.bridge?.connect ?? {};
+    return (this.matrix.bridge?.layouts[this.cellKind(cell)] ?? []).map((layout) => ({
       direction: layout.path[0],
       pieces,
       connect,

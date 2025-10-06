@@ -1,6 +1,6 @@
 {
   "name": "@technobuddha/maze",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Maze generation and solving library.",
   "author": {
     "name": "Phil Hill",
@@ -23,21 +23,23 @@
   },
   "packageManager": "yarn@4.9.4",
   "dependencies": {
-    "@technobuddha/library": "2.0.0",
+    "@technobuddha/library": "2.0.3",
     "colorjs.io": "0.5.2"
   },
   "devDependencies": {
-    "@technobuddha/project": "0.99.21",
+    "@technobuddha/builder": "0.99.21",
+    "@technobuddha/project": "0.99.51",
     "typedoc": "0.28.12"
   },
   "scripts": {
-    "build": "tsc -p src",
+    "dev": "build dev",
+    "build": "build prod",
     "lint": "npx eslint src",
     "spell": "npx cspell src"
   },
   "technobuddhaProject": {
-    "version": "0.99.21",
+    "version": "0.99.42",
     "created": "2025-09-01T21:21:26.150Z",
-    "updated": "2025-09-12T13:57:33.120Z"
+    "updated": "2025-09-23T12:10:01.943Z"
   }
 }

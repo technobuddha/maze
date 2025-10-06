@@ -215,7 +215,7 @@ export class BrickMaze extends Maze {
     }
   }
 
-  protected getRect(cell: Cell): Rect {
+  protected drawingBox(cell: Cell): Rect {
     const { x2, x7, y2, y3 } = this.cellOffsets(cell);
 
     const interior: Polygon = [

@@ -1047,7 +1047,7 @@ export abstract class OctagonMaze extends Maze {
     }
   }
 
-  protected getRect(cell: Cell): Rect {
+  protected drawingBox(cell: Cell): Rect {
     switch (this.cellKind(cell)) {
       case 0: {
         const { x6, xe, xk, xp, y6, ye, yk, yp } = this.cellOffsets(cell);

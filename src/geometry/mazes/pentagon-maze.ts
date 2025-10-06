@@ -1249,7 +1249,7 @@ export class PentagonMaze extends Maze {
     }
   }
 
-  protected getRect(cell: Cell): Rect {
+  protected drawingBox(cell: Cell): Rect {
     switch (this.cellKind(cell)) {
       case 0: {
         const { x5, xf, y2, y4 } = this.cellOffsets(cell);

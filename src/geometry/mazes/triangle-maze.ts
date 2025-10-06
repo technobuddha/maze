@@ -537,7 +537,7 @@ export class TriangleMaze extends Maze {
     }
   }
 
-  protected getRect(cell: Cell): Rect {
+  protected drawingBox(cell: Cell): Rect {
     switch (this.cellKind(cell)) {
       case 0: {
         const { x5, x9, xd, y8 } = this.cellOffsets(cell);

@@ -1107,7 +1107,7 @@ export class CubicMaze extends Maze {
     }
   }
 
-  protected getRect(cell: Cell): Rect {
+  protected drawingBox(cell: Cell): Rect {
     switch (this.cellKind(cell)) {
       case 0:
       case 3: {

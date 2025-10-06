@@ -525,7 +525,7 @@ export class CircularMaze extends Maze {
     }
   }
 
-  protected getRect(cell: Cell): Rect {
+  protected drawingBox(cell: Cell): Rect {
     const { cx, cy, a4, ac, r2, r3 } = this.cellOffsets(cell);
 
     const { x, y } = toCartesian({ φ: toRadians((a4 + ac) / 2), r: (r2 + r3) / 2 });
@@ -567,7 +567,7 @@ export class CircularMaze extends Maze {
           if (cell.direction === '?') {
             this.renderCircle(rect, color);
           } else {
-            const angle = this.angleMatrix[cell.direction]! + (cell.x === 0 ? 90 : -90);
+            const angle = this.matrix.angle[cell.direction]! + (cell.x === 0 ? 90 : -90);
             this.renderArrow(rect, angle, color);
           }
           break;
@@ -579,7 +579,7 @@ export class CircularMaze extends Maze {
             this.renderCircle(rect, color);
           } else {
             const angle =
-              this.angleMatrix[cell.direction]! + (cell.x * (360 / cols) + 360 / cols / 2);
+              this.matrix.angle[cell.direction]! + (cell.x * (360 / cols) + 360 / cols / 2);
             this.renderArrow(rect, angle, color);
           }
           break;

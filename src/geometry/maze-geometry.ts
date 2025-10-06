@@ -18,7 +18,7 @@ import {
   type Move,
   type MoveOffset,
 } from './geometry.ts';
-import { type BridgeMatrix, type Matrix } from './matrix.ts';
+import { type Matrix } from './matrix.ts';
 import { Nexus, type Tunnels, type Via, type Wall } from './nexus.ts';
 
 export function isFacing(orientation: string): orientation is Facing {
@@ -64,17 +64,7 @@ export abstract class MazeGeometry extends MessageController {
   public readonly wrapVertical: NonNullable<MazeGeometryProperties['wrapHorizontal']>;
 
   //#region Matrix
-  public readonly directions: Matrix['directions'];
-  public readonly pillars: Matrix['pillars'];
-  protected readonly wallMatrix: Matrix['wall'];
-  protected readonly oppositeMatrix: Matrix['opposite'];
-  protected readonly rightTurnMatrix: Matrix['rightTurn'];
-  protected readonly leftTurnMatrix: Matrix['leftTurn'];
-  protected readonly straightMatrix: Matrix['straight'];
-  protected readonly moveMatrix: Matrix['move'];
-  protected readonly preferredMatrix: Matrix['preferred'];
-  protected readonly angleMatrix: Matrix['angle'];
-  protected readonly bridgeMatrix: BridgeMatrix | undefined;
+  public readonly matrix: Matrix;
   public readonly bridgePieces: number;
   //#endregion
 
@@ -103,20 +93,10 @@ export abstract class MazeGeometry extends MessageController {
     this.wrapHorizontal = wrapHorizontal;
     this.wrapVertical = wrapVertical;
 
-    this.directions = matrix.directions;
-    this.pillars = matrix.pillars;
-    this.wallMatrix = matrix.wall;
-    this.oppositeMatrix = matrix.opposite;
-    this.rightTurnMatrix = matrix.rightTurn;
-    this.leftTurnMatrix = matrix.leftTurn;
-    this.straightMatrix = matrix.straight;
-    this.moveMatrix = matrix.move;
-    this.preferredMatrix = matrix.preferred;
-    this.angleMatrix = matrix.angle;
-    this.bridgeMatrix = matrix.bridge;
+    this.matrix = matrix;
     this.bridgePieces = matrix.bridge?.pieces ?? 1;
   }
-  //#region Create Nexus
+  //#region Nexus
   public nexus(cell: Cell): Nexus {
     if (cell.x >= 0 && cell.y >= 0 && cell.x < this.width && cell.y < this.height) {
       return this.nexuses[cell.x][cell.y];
@@ -137,7 +117,7 @@ export abstract class MazeGeometry extends MessageController {
           tunnels: this.initialTunnels({ x, y }),
           via: this.initialVia({ x, y }),
           barriers: this.initialBarriers({ x, y }),
-          rect: toSquare(this.getRect({ x, y })),
+          drawingBox: toSquare(this.drawingBox({ x, y })),
         }),
     );
   }
@@ -145,7 +125,7 @@ export abstract class MazeGeometry extends MessageController {
   public initialWalls(cell: Cell): Wall {
     const kind = this.cellKind(cell);
 
-    const initialWalls = this.wallMatrix[kind];
+    const initialWalls = this.matrix.wall[kind];
 
     if (initialWalls) {
       return { ...initialWalls };
@@ -172,6 +152,8 @@ export abstract class MazeGeometry extends MessageController {
     ) as Record<Direction, false>;
   }
 
+  protected abstract drawingBox(cell: Cell): Rect;
+
   public backup(): Nexus[][] {
     return structuredClone(this.nexuses);
   }
@@ -179,22 +161,22 @@ export abstract class MazeGeometry extends MessageController {
   public restore(backup: Nexus[][]): void {
     this.nexuses = structuredClone(backup);
   }
+  //#endregion
+  //#region Create Cells
 
   public abstract cellKind(cell: Cell): number;
-  protected abstract getRect(cell: Cell): Rect;
   //#endregion Create Cells
   //#region Direction
-  public angle(direction: Direction): number {
-    const angle = this.angleMatrix[direction];
+  public angle(facing: Facing): number;
+  public angle(direction: Direction): number;
+  public angle(orientation: Direction | Facing): number {
+    const angle =
+      this.matrix.angle[isDirection(orientation) ? orientation : toDirection(orientation)];
     if (angle != null) {
       return angle;
     }
 
-    throw new Error(`"${direction}" is not a valid direction`);
-  }
-
-  public heading(facing: Facing): number {
-    return this.angle(toDirection(facing));
+    throw new Error(`"${orientation}" is not valid.`);
   }
 
   public opposite(facing: Facing): Direction;
@@ -205,7 +187,7 @@ export abstract class MazeGeometry extends MessageController {
         return '?';
       }
 
-      const opposite = this.oppositeMatrix.facing[orientation];
+      const opposite = this.matrix.opposite.facing[orientation];
       if (opposite) {
         return opposite;
       }
@@ -217,7 +199,7 @@ export abstract class MazeGeometry extends MessageController {
       return '!';
     }
 
-    const opposite = this.oppositeMatrix.direction[orientation];
+    const opposite = this.matrix.opposite.direction[orientation];
     if (opposite) {
       return opposite;
     }
@@ -226,7 +208,7 @@ export abstract class MazeGeometry extends MessageController {
   }
 
   public rightTurn(cell: CellFacing): Direction[] {
-    const rightTurn = this.rightTurnMatrix[cell.facing];
+    const rightTurn = this.matrix.rightTurn[cell.facing];
     if (rightTurn) {
       return rightTurn.filter((d) => d in this.nexus(cell).walls);
     }
@@ -235,7 +217,7 @@ export abstract class MazeGeometry extends MessageController {
   }
 
   public leftTurn(cell: CellFacing): Direction[] {
-    const leftTurn = this.leftTurnMatrix[cell.facing];
+    const leftTurn = this.matrix.leftTurn[cell.facing];
     if (leftTurn) {
       return leftTurn.filter((d) => d in this.nexus(cell).walls);
     }
@@ -244,7 +226,7 @@ export abstract class MazeGeometry extends MessageController {
   }
 
   public straight(cell: CellFacing, bias = this.randomChance(0.5)): Direction[] {
-    const straight = this.straightMatrix[cell.facing];
+    const straight = this.matrix.straight[cell.facing];
     if (straight) {
       const validDirections = straight.flatMap((dir) => {
         const dirs = Array.from(dir).filter((d) => d in this.nexus(cell).walls) as Direction[];
@@ -254,15 +236,6 @@ export abstract class MazeGeometry extends MessageController {
     }
 
     throw new Error(`"${cell.facing}" is not a valid direction`);
-  }
-
-  public straightest(cell: CellFacing, bias = this.randomChance(0.5)): Direction {
-    const straights = this.straight(cell, bias);
-    if (straights.length > 1) {
-      return straights[0];
-    }
-
-    throw new Error(`(${cell.x},${cell.y}):${cell.facing} has no straight.`);
   }
 
   public forward(cell: CellFacing, bias = this.randomChance(0.5)): Direction {
@@ -363,35 +336,19 @@ export abstract class MazeGeometry extends MessageController {
   }
 
   public manhattanDistance(a: Cell, b: Cell): number {
-    const distances: number[] = [manhattanDistance(a, b)];
-
-    if (this.wrapHorizontal) {
-      distances.push(
-        manhattanDistance({ ...a, x: a.x + this.width }, b),
-        manhattanDistance({ ...a, x: a.x - this.width }, b),
-      );
-    }
-    if (this.wrapVertical) {
-      distances.push(
-        manhattanDistance({ ...a, y: a.y + this.height }, b),
-        manhattanDistance({ ...a, y: a.y - this.height }, b),
-      );
-    }
-    if (this.wrapHorizontal && this.wrapVertical) {
-      distances.push(
-        manhattanDistance({ x: a.x + this.width, y: a.y + this.height }, b),
-        manhattanDistance({ x: a.x - this.width, y: a.y - this.height }, b),
-      );
-    }
-
-    return Math.min(...distances);
+    return manhattanDistance(a, b, {
+      width: this.width,
+      height: this.height,
+      wrapHorizontal: this.wrapHorizontal,
+      wrapVertical: this.wrapVertical,
+    });
   }
 
   public abstract isDeadEnd(cell: Cell): boolean;
   //#endregion
   //#region Movement
   public traverse(cell: Cell, direction: Direction): CellFacing {
-    let move = this.moveMatrix[this.cellKind(cell)][direction];
+    let move = this.matrix.move[this.cellKind(cell)][direction];
 
     if (move) {
       if (Array.isArray(move)) {
@@ -427,10 +384,6 @@ export abstract class MazeGeometry extends MessageController {
         target: { ...destination, facing: '!' },
       }
     );
-  }
-
-  public move(cell: Cell, direction: Direction): CellFacing {
-    return this.walk(cell, direction).target;
   }
 
   public moves(
@@ -505,7 +458,7 @@ export abstract class MazeGeometry extends MessageController {
 
   public preferreds(cell: Cell): Direction[] {
     return this.moves(cell, { wall: true })
-      .filter(({ direction }) => this.preferredMatrix[this.cellKind(cell)].includes(direction))
+      .filter(({ direction }) => this.matrix.preferred[this.cellKind(cell)].includes(direction))
       .map(({ direction }) => direction);
   }
   //#endregion

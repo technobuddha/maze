@@ -170,7 +170,7 @@ export class SquareMaze extends Maze {
     }
   }
 
-  protected getRect(cell: Cell): Rect {
+  protected drawingBox(cell: Cell): Rect {
     const { x1, x4, y1, y4 } = this.cellOffsets(cell);
 
     return { x: x1, y: y1, width: x4 - x1, height: y4 - y1 };

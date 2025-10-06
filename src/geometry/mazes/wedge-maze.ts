@@ -721,7 +721,7 @@ export class WedgeMaze extends Maze {
     }
   }
 
-  protected getRect(cell: Cell): Rect {
+  protected drawingBox(cell: Cell): Rect {
     switch (this.cellKind(cell)) {
       case 0: {
         const { x2, x6, y2, y6 } = this.cellOffsets(cell);

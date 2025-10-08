@@ -1,4 +1,4 @@
-import { Random, type RandomProperties } from './random.ts';
+import { CustomEventTarget, Random, type RandomProperties } from '@technobuddha/library';
 
 export type MessageOptions = {
   color?: string;
@@ -9,31 +9,27 @@ export type MessageCallback = (message: string, options: MessageOptions) => void
 
 export type MessageControllerProperties = RandomProperties;
 
-export abstract class MessageController extends Random {
-  private readonly eventTarget: EventTarget;
-  private readonly handlers = new WeakMap<MessageCallback, (event: Event) => void>();
+type Payload = { message: string } & MessageOptions;
 
-  public constructor(props: RandomProperties = {}) {
-    super(props);
-    this.eventTarget = new EventTarget();
-  }
+type Events = {
+  message: Payload;
+};
+
+export abstract class MessageController extends Random {
+  private readonly eventTarget = new CustomEventTarget<Events>();
+  private readonly handlers = new WeakMap<MessageCallback, (event: CustomEvent<Payload>) => void>();
 
   public sendMessage(message: string, { color, level }: MessageOptions = {}): void {
-    this.eventTarget.dispatchEvent(
-      new CustomEvent('message', {
-        detail: { message, color, level },
-      }),
-    );
+    this.eventTarget.dispatchEvent('message', { message, color, level });
   }
 
   public listenMessages(callback: MessageCallback): void {
-    const handler = (event: Event): void => {
-      const { message, ...options } = (event as CustomEvent).detail;
+    const handler = (event: CustomEvent<Payload>): void => {
+      const { message, ...options } = event.detail;
       callback(message, options);
     };
 
     this.handlers.set(callback, handler);
-
     this.eventTarget.addEventListener('message', handler);
   }
 

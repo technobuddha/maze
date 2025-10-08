@@ -1,4 +1,6 @@
-import { animate, type Drawing } from '../drawing/index.ts';
+import { animate } from '@technobuddha/library';
+
+import { type Drawing } from '../drawing/index.ts';
 import { type MazeGenerator, type MazeGeneratorProperties } from '../generator/index.ts';
 import { type Maze, type MazeProperties } from '../geometry/index.ts';
 import { type MazeSolver, type MazeSolverProperties } from '../solver/index.ts';

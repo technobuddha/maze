@@ -25,4 +25,5 @@ coverage
 *.lcov
 
 # Project Ignore
-
+diagrams
+scripts

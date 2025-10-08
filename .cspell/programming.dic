@@ -19,6 +19,7 @@ Foobie
 foobiebletch
 fullchain
 genrand
+iotn
 lerp
 lngs
 LOGNAME
@@ -51,6 +52,8 @@ spinbutton
 stylesheet
 subarray
 subarrays
+subchild
+subdirs
 SVGM
 textnodes
 timespan

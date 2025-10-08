@@ -9,12 +9,12 @@
     {
       "tagName": "@group",
       "syntaxKind": "block",
-      "allowMultiple": true
+      "allowMultiple": false
     },
     {
       "tagName": "@category",
       "syntaxKind": "block",
-      "allowMultiple": true
+      "allowMultiple": false
     }
   ]
 }

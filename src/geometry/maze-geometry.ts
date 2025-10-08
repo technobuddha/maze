@@ -7,7 +7,10 @@ import {
 } from '@technobuddha/library';
 
 import { type MazeGenerator } from '../generator/index.ts';
-import { MessageController, type MessageControllerProperties } from '../random/index.ts';
+import {
+  MessageController,
+  type MessageControllerProperties,
+} from '../message-controller/index.ts';
 
 import {
   type Cell,

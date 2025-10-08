@@ -1,5 +1,6 @@
+import { Random, type RandomProperties } from '@technobuddha/library';
+
 import { type CellFacing, type Maze } from '../geometry/index.ts';
-import { Random, type RandomProperties } from '../random/index.ts';
 
 type Trash = AbortController;
 

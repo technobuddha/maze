@@ -1,4 +1,4 @@
-import { create2dArray, modulo } from '@technobuddha/library';
+import { create2dArray, modulo, Random, type RandomProperties } from '@technobuddha/library';
 
 import {
   type Cell,
@@ -8,7 +8,6 @@ import {
   type Move,
 } from '../geometry/index.ts';
 import { logger } from '../library/logger.ts';
-import { Random, type RandomProperties } from '../random/index.ts';
 
 export type Strategy = 'random' | 'right-turn' | 'left-turn' | 'straight' | 'bridge-builder';
 

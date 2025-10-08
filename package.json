@@ -21,14 +21,14 @@
   "engines": {
     "node": ">=24.0.0"
   },
-  "packageManager": "yarn@4.9.4",
+  "packageManager": "yarn@4.10.3",
   "dependencies": {
-    "@technobuddha/library": "2.0.3",
+    "@technobuddha/builder": "0.99.23",
+    "@technobuddha/library": "2.0.40",
     "colorjs.io": "0.5.2"
   },
   "devDependencies": {
-    "@technobuddha/builder": "0.99.21",
-    "@technobuddha/project": "0.99.51",
+    "@technobuddha/project": "0.99.135",
     "typedoc": "0.28.12"
   },
   "scripts": {
@@ -38,8 +38,8 @@
     "spell": "npx cspell src"
   },
   "technobuddhaProject": {
-    "version": "0.99.42",
+    "version": "0.99.135",
     "created": "2025-09-01T21:21:26.150Z",
-    "updated": "2025-09-23T12:10:01.943Z"
+    "updated": "2025-10-07T11:30:48.186Z"
   }
 }

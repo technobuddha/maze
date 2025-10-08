@@ -4,6 +4,7 @@
 const config = {
   dev: {
     watch: true,
+
     steps: [
       {
         name: 'Clean',
@@ -12,7 +13,7 @@ const config = {
       {
         name: 'Maze',
         directory: './src',
-        command: 'tsc -p ./src',
+        command: 'tsc --build ./src',
       },
     ],
   },
@@ -24,7 +25,7 @@ const config = {
       },
       {
         name: 'Maze',
-        command: 'tsc -p ./src',
+        command: 'tsc --build ./src',
       },
     ]
   }

@@ -7,10 +7,16 @@ const config = {
         references: ['./src'],
       },
     },
+    'scripts': {
+      environment: 'node',
+    },
     'src': {
       environment: 'browser',
     },
   },
+  npm: {
+    ignore: ['diagrams', 'scripts'],
+  }
 };
 
 export default config;

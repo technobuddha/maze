@@ -1,8 +1,14 @@
-import { modulo } from '@technobuddha/library';
+import { JSONSet, modulo, Random, type RandomProperties } from '@technobuddha/library';
 
-import { type Cell, type CellFacing, type Maze, type Move } from '../../geometry/index.ts';
-import { darken, PathSet } from '../../library/index.ts';
-import { type MessageOptions, Random, type RandomProperties } from '../../random/index.ts';
+import {
+  type Cell,
+  type CellFacing,
+  type CellTunnel,
+  type Maze,
+  type Move,
+} from '../../geometry/index.ts';
+import { darken } from '../../library/index.ts';
+import { type MessageOptions } from '../../message-controller/index.ts';
 
 export type Program =
   | 'random'
@@ -38,7 +44,7 @@ export abstract class Robot extends Random implements Disposable {
   protected drawCell: (cell: Cell, color?: string) => void;
   protected avatar: (cell: Cell, color: string) => void;
   protected bias = true;
-  protected pathSet = new PathSet();
+  protected pathSet = new JSONSet<CellTunnel>();
 
   private seekingWall = true;
 
@@ -89,7 +95,7 @@ export abstract class Robot extends Random implements Disposable {
 
   protected drawPath(): void {
     if (this.showPath) {
-      const currentPathSet = new PathSet(this.maze.makePath(this.path()));
+      const currentPathSet = new JSONSet<CellTunnel>(this.maze.makePath(this.path()));
 
       for (const path of this.pathSet.difference(currentPathSet)) {
         this.drawCell(path);

@@ -3,17 +3,43 @@ import { type Cartesian, modulo, type Rect } from '@technobuddha/library';
 import { type Cell, type Direction, type Kind, type Pillar } from '../geometry.ts';
 import { type DrawingSizes, Maze, type MazeProperties } from '../maze.ts';
 
-import { matrix } from './dot-matrix.ts';
+import { dotMatrix } from './dot-matrix.ts';
 
+/**
+ * Properties for configuring a DotMaze instance.
+ *
+ * @group Geometry
+ * @category Mazes
+ */
 export type DotMazeProperties = MazeProperties;
 
 const { SQRT1_2 } = Math;
 
+/**
+ * A maze implementation that renders cells as circular dots connected by diagonal pathways.
+ *
+ * This maze type creates a distinctive visual style where each cell is represented by a circular
+ * dot, and the connections between cells follow diagonal patterns rather than simple horizontal
+ * and vertical lines. The maze supports complex intersection rendering and tunnel visualization.
+ *
+ * @group Geometry
+ * @category Mazes
+ */
 export class DotMaze extends Maze {
+  /**
+   * Creates a new DotMaze instance.
+   *
+   * @param props - Configuration properties for the maze
+   */
   public constructor({ cellSize = 32, wallSize = 8, voidSize = 2, ...props }: MazeProperties) {
-    super({ cellSize, wallSize, voidSize, ...props }, matrix);
+    super({ cellSize, wallSize, voidSize, ...props }, dotMatrix);
   }
 
+  /**
+   * Calculates the drawing dimensions for the maze layout.
+   *
+   * @returns The sizing configuration for rendering the maze
+   */
   protected drawingSize(): DrawingSizes {
     return {
       groupWidth: this.cellSize,
@@ -25,14 +51,36 @@ export class DotMaze extends Maze {
     };
   }
 
+  /**
+   * Determines the kind/type of a cell for rendering purposes.
+   *
+   * @param _cell - The cell to analyze
+   * @returns Always returns 0 as dot mazes have uniform cell types
+   */
   public cellKind(_cell: Cell): number {
     return 0;
   }
 
+  /**
+   * Calculates the origin point for a cell in the drawing coordinate system.
+   *
+   * @param cell - The cell to locate
+   * @returns The top-left corner coordinates of the cell
+   */
   protected cellOrigin(cell: Cell): Cartesian {
     return { x: cell.x * this.cellSize, y: cell.y * this.cellSize };
   }
 
+  /**
+   * Calculates offset coordinates for drawing various maze elements within a cell.
+   *
+   * This method computes a comprehensive set of x and y coordinates that define
+   * the positions of walls, passages, and intersections within a cell using
+   * diagonal geometry and mathematical constants.
+   *
+   * @param _kind - The cell kind (unused in dot mazes)
+   * @returns A record containing named coordinate offsets (x0-xe, y0-ye)
+   */
   protected offsets(_kind: Kind): Record<string, number> {
     const c = this.cellSize;
     const w = this.wallSize;
@@ -77,6 +125,15 @@ export class DotMaze extends Maze {
     };
   }
 
+  /**
+   * Removes a wall between cells and updates affected intersections.
+   *
+   * This override ensures that diagonal intersections in adjacent cells
+   * are properly redrawn when walls are removed.
+   *
+   * @param cell - The cell containing the wall
+   * @param direction - The direction of the wall to remove
+   */
   public override removeWall(cell: Cell, direction: Direction): void {
     super.removeWall(cell, direction);
 
@@ -93,6 +150,15 @@ export class DotMaze extends Maze {
     }
   }
 
+  /**
+   * Adds a wall between cells and updates affected intersections.
+   *
+   * This override ensures that diagonal intersections in adjacent cells
+   * are properly redrawn when walls are added.
+   *
+   * @param cell - The cell to add the wall to
+   * @param direction - The direction of the wall to add
+   */
   public override addWall(cell: Cell, direction: Direction): void {
     super.addWall(cell, direction);
 
@@ -109,6 +175,14 @@ export class DotMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a cell as a circular dot with proper intersections.
+   *
+   * @typeParam T - The cell type
+   * @param cell - The cell to draw
+   * @param color - The color to use for the cell
+   * @returns The drawn cell
+   */
   public override drawCell<T extends Cell>(cell: T, color = this.color.cell): T {
     if (this.drawing) {
       const { x7, x8, y7, y9 } = this.cellOffsets(cell);
@@ -126,6 +200,12 @@ export class DotMaze extends Maze {
     return cell;
   }
 
+  /**
+   * Erases a cell by filling its area with the void color.
+   *
+   * @param cell - The cell to erase
+   * @param color - The color to fill with (defaults to void color)
+   */
   public eraseCell(cell: Cell, color = this.color.void): void {
     if (this.drawing) {
       const { x0, xe, y0, ye } = this.cellOffsets(cell);
@@ -133,6 +213,12 @@ export class DotMaze extends Maze {
     }
   }
 
+  /**
+   * Draws the floor area of a cell.
+   *
+   * @param cell - The cell to draw the floor for
+   * @param color - The color to use for the floor
+   */
   public override drawFloor(cell: Cell, color = this.color.cell): void {
     if (this.drawing) {
       const { x1, xd, y1, yd } = this.cellOffsets(cell);
@@ -141,13 +227,30 @@ export class DotMaze extends Maze {
     }
   }
 
-  // Pillars are always displayed
+  /**
+   * Draws all pillars for a cell.
+   *
+   * Pillars are always displayed in dot mazes regardless of wall state.
+   *
+   * @param cell - The cell to draw pillars for
+   * @param color - The color to use for pillars
+   */
   public override drawPillars(cell: Cell, color = this.color.wall): void {
     for (const pillar of this.matrix.pillars) {
       this.drawPillar(cell, pillar, color);
     }
   }
 
+  /**
+   * Draws a wall in the specified direction from a cell.
+   *
+   * Walls are drawn as polygonal shapes that follow the diagonal
+   * geometry of the dot maze layout.
+   *
+   * @param cell - The cell containing the wall
+   * @param direction - The direction of the wall
+   * @param color - The color to use for the wall
+   */
   public drawWall(cell: Cell, direction: Direction, color = this.color.wall): void {
     if (this.drawing) {
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
@@ -238,6 +341,14 @@ export class DotMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a passage (opening) in a wall with appropriate coloring.
+   *
+   * @param cell - The cell containing the passage
+   * @param direction - The direction of the passage
+   * @param wallColor - The color to use for wall segments
+   * @param cellColor - The color to use for the passage opening
+   */
   public drawPassage(
     cell: Cell,
     direction: Direction,
@@ -359,6 +470,15 @@ export class DotMaze extends Maze {
     }
   }
 
+  /**
+   * Draws complex diagonal intersections where multiple walls meet.
+   *
+   * This method handles the intricate geometry of diagonal wall intersections,
+   * including tunnel visualization for crossing paths.
+   *
+   * @param cell - The cell to draw intersections for
+   * @param tunnels - Whether to draw tunnel indicators for crossing paths
+   */
   public drawIntersections(cell: Cell, tunnels = true): void {
     if (this.drawing) {
       const { walls, barriers } = this.nexus(cell);
@@ -638,6 +758,16 @@ export class DotMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a pillar at the intersection of walls in a cell.
+   *
+   * Pillars are represented as triangular shapes filling the corner
+   * spaces created by intersecting walls.
+   *
+   * @param cell - The cell containing the pillar
+   * @param pillar - The specific pillar position to draw
+   * @param color - The color to use for the pillar
+   */
   public drawPillar(cell: Cell, pillar: Pillar, color = this.color.wall): void {
     if (this.drawing) {
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
@@ -751,6 +881,12 @@ export class DotMaze extends Maze {
     }
   }
 
+  /**
+   * Draws an X shape across the cell to indicate a blocked or inactive state.
+   *
+   * @param cell - The cell to draw the X in
+   * @param color - The color to use for the X lines
+   */
   public drawX(cell: Cell, color = this.color.blocked): void {
     if (this.drawing) {
       const { x5, x6, x8, x9, y5, y6, y8, y9 } = this.cellOffsets(cell);
@@ -762,6 +898,12 @@ export class DotMaze extends Maze {
     }
   }
 
+  /**
+   * Defines the rectangular area occupied by a cell, used for drawing and collision detection.
+   *
+   * @param cell - The cell to define the drawing box for
+   * @returns The rectangular area of the cell
+   */
   protected drawingBox(cell: Cell): Rect {
     const { x5, x9, y5, y9 } = this.cellOffsets(cell);
 

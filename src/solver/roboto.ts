@@ -1,10 +1,9 @@
+/* eslint-disable @typescript-eslint/no-loop-func */
 import { conjoin, MersenneTwister, ordinal } from '@technobuddha/library';
 
 import { type CellFacing } from '../geometry/index.ts';
 import { mix } from '../library/index.ts';
-
-import { MazeSolver, type MazeSolverProperties } from './maze-solver.ts';
-import { DrunkenRobot, type DrunkenRobotProperties } from './robot/drunkards-walk.ts';
+import { DrunkenRobot, type DrunkenRobotProperties } from '../robot/drunkards-walk.ts';
 import {
   BacktrackingRobot,
   type BacktrackingRobotProperties,
@@ -19,16 +18,40 @@ import {
   type TremauxRobotProperties,
   WallWalkingRobot,
   type WallWalkingRobotProperties,
-} from './robot/index.ts';
-import { RobotError } from './robot/robot-error.ts';
+} from '../robot/index.ts';
+import { RobotError } from '../robot/robot-error.ts';
 
-type RoboProperties<Algorithm extends string, Properties> = Omit<
+import { MazeSolver, type MazeSolverProperties } from './maze-solver.ts';
+
+/**
+ * Generic robot configuration type that omits maze and location properties.
+ *
+ * Creates a robot specification by combining an algorithm identifier with
+ * the corresponding robot properties, excluding maze and location since
+ * those are provided by the Roboto solver.
+ *
+ * @typeParam Algorithm - The algorithm identifier string
+ * @typeParam Properties - The specific robot properties type
+ * @group Solver
+ * @category Types
+ */
+export type RoboProperties<Algorithm extends string, Properties> = Omit<
   Properties,
   'maze' | 'location'
 > & {
+  /** The algorithm identifier for the robot type */
   algorithm: Algorithm;
 };
 
+/**
+ * Union type of all supported robot configurations.
+ *
+ * Defines all available robot algorithms that can be used by the Roboto solver,
+ * each with their specific configuration properties.
+ *
+ * @group Solver
+ * @category Types
+ */
 export type Robo =
   | RoboProperties<'backtracking', BacktrackingRobotProperties>
   | RoboProperties<'dijkstras', DijkstrasRobotProperties>
@@ -38,20 +61,62 @@ export type Robo =
   | RoboProperties<'tremaux', TremauxRobotProperties>
   | RoboProperties<'wall-walking', WallWalkingRobotProperties>;
 
+/**
+ * Configuration properties for the Roboto maze solver.
+ *
+ * @group Solver
+ * @category Properties
+ */
 export type RobotoProperties = MazeSolverProperties & {
+  /** Array of robot configurations to deploy in the maze */
   robots: Robo[];
 };
 
+/**
+ * Multi-robot maze solver that deploys and manages multiple solving algorithms simultaneously.
+ *
+ * Roboto creates and coordinates multiple robot instances, each running different algorithms
+ * in parallel. The solver manages robot lifecycles, handles errors, and tracks completion
+ * in a competitive environment where robots race to find the exit.
+ *
+ * Key features:
+ * - Supports 7 different robot algorithms (Tremaux, Wall-walking, Backtracking, etc.)
+ * - Synchronized random number generation across all robots
+ * - Competitive scoring and place tracking for multiple robots
+ * - Error handling and graceful robot termination
+ * - Automatic solution capture from the first successful robot
+ *
+ * @group Solver
+ * @category Algorithms
+ */
 export class Roboto extends MazeSolver {
+  /** Random seed for synchronized number generation across all robots */
   private readonly seed = Math.floor(Math.random() * 0x7fffffff);
+  /** Original robot configurations for spawning */
   private readonly robos: Robo[] = [];
+  /** Active robot instances currently running */
   protected readonly robots: Robot[] = [];
 
+  /**
+   * Creates a new Roboto solver with specified robot configurations.
+   *
+   * @param props - Configuration including maze and array of robot specifications
+   */
   public constructor({ maze, robots, ...props }: RobotoProperties) {
     super({ maze, ...props });
     this.robos = robots;
   }
 
+  /**
+   * Creates a robot instance from a configuration specification.
+   *
+   * Instantiates the appropriate robot class based on the algorithm type,
+   * ensuring all robots share the same random number generator for fairness.
+   *
+   * @param robo - Robot configuration specification
+   * @param location - Starting position and facing direction for the robot
+   * @returns Configured robot instance ready for execution
+   */
   protected createRobot(robo: Robo, location: CellFacing): Robot {
     // Ensure that all robots use the same random numbers.
     const rng = new MersenneTwister(this.seed);
@@ -91,6 +156,15 @@ export class Roboto extends MazeSolver {
     }
   }
 
+  /**
+   * Executes one step for a single robot with error handling.
+   *
+   * Attempts to execute the robot's next action, catching and handling
+   * any errors that occur. Failed robots are automatically terminated
+   * and removed from the active robot pool.
+   *
+   * @param robot - The robot instance to execute
+   */
   protected runOneRobot(robot: Robot): void {
     try {
       robot.execute();
@@ -104,12 +178,25 @@ export class Roboto extends MazeSolver {
     }
   }
 
+  /**
+   * Executes one step for all active robots.
+   *
+   * Iterates through all active robots and executes their next action.
+   * Creates a copy of the robot array to handle robots that may be
+   * removed during execution due to errors or completion.
+   */
   protected runAllRobots(): void {
     for (const robot of Array.from(this.robots)) {
       this.runOneRobot(robot);
     }
   }
 
+  /**
+   * Terminates and disposes all active robots.
+   *
+   * Removes all robots from the active pool and properly disposes
+   * their resources to prevent memory leaks.
+   */
   protected killAllRobots(): void {
     let robot: Robot | undefined;
     while ((robot = this.robots.pop())) {
@@ -117,6 +204,14 @@ export class Roboto extends MazeSolver {
     }
   }
 
+  /**
+   * Terminates and disposes a specific robot.
+   *
+   * Removes the robot from the active pool and disposes its resources.
+   * Issues a warning if the robot is not found in the active pool.
+   *
+   * @param robot - The robot instance to terminate
+   */
   protected killOneRobot(robot: Robot): void {
     const index = this.robots.indexOf(robot);
     if (index >= 0) {
@@ -127,14 +222,39 @@ export class Roboto extends MazeSolver {
     robot.dispose();
   }
 
+  /**
+   * Adds a robot to the active execution pool.
+   *
+   * @param robot - The robot instance to activate
+   */
   protected activateOneRobot(robot: Robot): void {
     this.robots.push(robot);
   }
 
+  /**
+   * Checks if a robot has completed its program by reaching the target.
+   *
+   * @param robot - The robot to check for completion
+   * @param exit - The target position (defaults to maze exit)
+   * @returns True if the robot has reached the target position
+   */
   protected isProgramComplete(robot: Robot, exit = this.maze.exit): boolean {
     return this.maze.isSame(robot.location, exit);
   }
 
+  /**
+   * Solves the maze using multiple robots in competitive parallel execution.
+   *
+   * Deploys all configured robots from the entrance and runs them simultaneously
+   * until one or more reach the exit. Tracks completion order, handles ties,
+   * and captures the solution path from the first successful robot.
+   *
+   * The solver continues until all robots either complete or fail, providing
+   * competitive messaging for multi-robot scenarios.
+   *
+   * @param options - Optional entrance and exit override points
+   * @yields After each execution cycle for animation and visualization
+   */
   public async *solve({
     entrance = this.maze.entrance,
     exit = this.maze.exit,
@@ -166,7 +286,7 @@ export class Roboto extends MazeSolver {
             });
           } else if (winners.length > 1) {
             this.maze.sendMessage(
-              // eslint-disable-next-line @typescript-eslint/no-loop-func
+              // eslint-disable-@typescript-eslint/no-loop-func
               `${winners.map((r) => r.name).join(', ')} tie for ${conjoin(winners.map(() => ordinal(++place)))} places`,
               {
                 color: mix(winners[0].color, winners[1].color),

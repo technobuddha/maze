@@ -11,6 +11,7 @@ chunkname
 codepaths
 credentialless
 datagrid
+diceware
 embertest
 errmsg
 fooba
@@ -40,6 +41,7 @@ onpagereveal
 onpageswap
 onpointerrawupdate
 onsearch
+pathfinding
 pids
 pjvalue
 privkey

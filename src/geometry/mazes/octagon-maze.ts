@@ -3,20 +3,58 @@ import { type Rect } from '@technobuddha/library';
 import { type Cell, type Direction, type Kind, type Pillar } from '../geometry.ts';
 import { Maze, type MazeProperties } from '../maze.ts';
 
-import { matrix, type MatrixPart } from './octagon-matrix.ts';
+import { octagonMatrix, type MatrixPart } from './octagon-matrix.ts';
 
 const { SQRT2, SQRT1_2 } = Math;
 
+/**
+ * Properties for configuring an OctagonMaze instance.
+ *
+ * @group Geometry
+ * @category Mazes
+ */
 export type OctagonMazeProperties = MazeProperties;
 
+/**
+ * Abstract base class for octagon-based maze implementations.
+ *
+ * This class provides the foundational geometry and rendering capabilities for mazes
+ * that use octagonal shapes as their primary cell structure. It supports multiple cell
+ * kinds (octagon, diamond, square) and can be extended to create different tessellation
+ * patterns by combining these shapes in various arrangements.
+ *
+ * The class handles complex geometric calculations for positioning, wall rendering,
+ * and visual effects across all supported cell types using precise mathematical
+ * constants and coordinate systems.
+ *
+ * @group Geometry
+ * @category Mazes
+ */
 export abstract class OctagonMaze extends Maze {
+  /**
+   * Creates a new OctagonMaze instance.
+   *
+   * @param props - Configuration properties for the maze
+   * @param partMatrix - Matrix configuration that defines the specific tessellation pattern
+   */
   public constructor(
     { cellSize = 40, wallSize = 1, voidSize = 1, ...props }: OctagonMazeProperties,
     partMatrix: MatrixPart,
   ) {
-    super({ cellSize, wallSize, voidSize, ...props }, { ...matrix, ...partMatrix });
+    super({ cellSize, wallSize, voidSize, ...props }, { ...octagonMatrix, ...partMatrix });
   }
 
+  /**
+   * Calculates offset coordinates for drawing maze elements within cells of different kinds.
+   *
+   * This method computes comprehensive coordinate systems for octagonal (kind 0),
+   * diamond (kind 1), and square (kind 2) cells. Each cell kind uses different
+   * geometric calculations based on octagon side lengths and positioning constants.
+   *
+   * @param kind - The cell kind (0=octagon, 1=diamond, 2=square)
+   * @returns A record containing named coordinate offsets for the specified cell kind
+   * @throws Error if an unknown cell kind is provided
+   */
   protected offsets(kind: Kind): Record<string, number> {
     const v = this.voidSize;
     const w = this.wallSize;
@@ -186,6 +224,15 @@ export abstract class OctagonMaze extends Maze {
     }
   }
 
+  /**
+   * Erases a cell by filling its area with the void color.
+   *
+   * The shape of the erased area depends on the cell kind: octagonal for kind 0,
+   * diamond for kind 1, and rectangular for kind 2.
+   *
+   * @param cell - The cell to erase
+   * @param color - The color to fill with (defaults to void color)
+   */
   public eraseCell(cell: Cell, color = this.color.void): void {
     if (this.drawing) {
       switch (this.cellKind(cell)) {
@@ -235,6 +282,15 @@ export abstract class OctagonMaze extends Maze {
     }
   }
 
+  /**
+   * Draws the floor area of a cell.
+   *
+   * The floor shape varies by cell kind and represents the interior walkable area
+   * within each cell, excluding walls and void spaces.
+   *
+   * @param cell - The cell to draw the floor for
+   * @param color - The color to use for the floor
+   */
   public drawFloor(cell: Cell, color = this.color.cell): void {
     if (this.drawing) {
       switch (this.cellKind(cell)) {
@@ -286,6 +342,18 @@ export abstract class OctagonMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a wall in the specified direction from a cell.
+   *
+   * Supports all 16 possible directions across the three cell kinds:
+   * - Octagonal cells (kind 0): directions a-h
+   * - Diamond cells (kind 1): directions i-l
+   * - Square cells (kind 2): directions m-p
+   *
+   * @param cell - The cell containing the wall
+   * @param direction - The direction of the wall
+   * @param color - The color to use for the wall
+   */
   public drawWall(cell: Cell, direction: Direction, color = this.color.wall): void {
     if (this.drawing) {
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
@@ -462,6 +530,18 @@ export abstract class OctagonMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a passage (opening) in a wall with appropriate wall and cell coloring.
+   *
+   * Creates partial walls on either side of the passage opening while maintaining
+   * the geometric integrity of the cell structure. Supports all wall directions
+   * across the three cell kinds.
+   *
+   * @param cell - The cell containing the passage
+   * @param direction - The direction of the passage
+   * @param wallColor - The color to use for wall segments
+   * @param cellColor - The color to use for the passage opening
+   */
   public drawPassage(
     cell: Cell,
     direction: Direction,
@@ -801,6 +881,17 @@ export abstract class OctagonMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a pillar (corner decoration) at the intersection between adjacent directions.
+   *
+   * Pillars provide visual continuity at cell vertices and intersections. The specific
+   * shape and positioning depends on the cell kind and pillar location within the
+   * geometric structure.
+   *
+   * @param cell - The cell containing the pillar
+   * @param pillar - The pillar type/position identifier
+   * @param color - The color to use for the pillar
+   */
   public drawPillar(cell: Cell, pillar: Pillar, color = this.color.wall): void {
     if (this.drawing) {
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
@@ -1014,6 +1105,15 @@ export abstract class OctagonMaze extends Maze {
     }
   }
 
+  /**
+   * Draws an X pattern over a cell to indicate it's blocked or marked.
+   *
+   * The X pattern is adapted for each cell kind: complex multi-line patterns
+   * for octagonal cells, simple cross patterns for diamond and square cells.
+   *
+   * @param cell - The cell to mark with an X
+   * @param color - The color to use for the X pattern
+   */
   public drawX(cell: Cell, color = this.color.blocked): void {
     if (this.drawing) {
       switch (this.cellKind(cell)) {
@@ -1047,6 +1147,16 @@ export abstract class OctagonMaze extends Maze {
     }
   }
 
+  /**
+   * Calculates the optimal rectangular drawing area within a cell.
+   *
+   * Returns different sized rectangles depending on the cell kind, optimized
+   * for the shape and available space within each cell type.
+   *
+   * @param cell - The cell to calculate the drawing box for
+   * @returns The rectangular bounds for drawing within the cell
+   * @throws Error if an invalid cell kind is encountered
+   */
   protected drawingBox(cell: Cell): Rect {
     switch (this.cellKind(cell)) {
       case 0: {

@@ -10,13 +10,13 @@ import {
 import { type Cell, type Direction, type Kind, type Pillar } from '../geometry.ts';
 import { type DrawingSizes, Maze, type MazeProperties } from '../maze.ts';
 
-import { matrix } from './brick-matrix.ts';
+import { brickMatrix } from './brick-matrix.ts';
 
 export type BrickMazeProperties = MazeProperties;
 
 export class BrickMaze extends Maze {
   public constructor({ cellSize = 20, wallSize = 1, voidSize = 2, ...props }: BrickMazeProperties) {
-    super({ cellSize, wallSize, voidSize, ...props }, matrix);
+    super({ cellSize, wallSize, voidSize, ...props }, brickMatrix);
   }
 
   protected drawingSize(): DrawingSizes {
@@ -62,6 +62,12 @@ export class BrickMaze extends Maze {
     return { x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, y0, y1, y2, y3, y4, y5 };
   }
 
+  /**
+   * Erases a cell by drawing over its entire area with the specified color.
+   * Covers the complete cell including walls and void spaces.
+   * @param cell - The cell to erase
+   * @param color - The color to fill with (defaults to void color)
+   */
   public eraseCell(cell: Cell, color = this.color.void): void {
     if (this.drawing) {
       const { x0, x9, y0, y5 } = this.cellOffsets(cell);
@@ -69,6 +75,12 @@ export class BrickMaze extends Maze {
     }
   }
 
+  /**
+   * Draws the floor/interior area of a hexagonal cell.
+   * Renders the walkable area within the cell boundaries.
+   * @param cell - The cell to draw the floor for
+   * @param color - The floor color (defaults to cell color)
+   */
   public drawFloor(cell: Cell, color = this.color.cell): void {
     if (this.drawing) {
       const { x1, x8, y1, y4 } = this.cellOffsets(cell);
@@ -77,6 +89,13 @@ export class BrickMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a wall on the specified side of a hexagonal cell.
+   * Each side corresponds to one of the six directions in hexagonal coordinates.
+   * @param cell - The cell to draw the wall for
+   * @param direction - The side/direction of the wall (a=top-left, b=top-right, c=right, d=bottom-right, e=bottom-left, f=left)
+   * @param color - The wall color (defaults to wall color)
+   */
   public drawWall(cell: Cell, direction: Direction, color = this.color.wall): void {
     if (this.drawing) {
       switch (direction) {
@@ -116,6 +135,14 @@ export class BrickMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a passage (opening) in a wall by creating a walkable connection.
+   * Renders wall sections with a cell-colored opening in the middle to show connectivity.
+   * @param cell - The cell to draw the passage from
+   * @param direction - The direction of the passage (a-f for hexagonal sides)
+   * @param wallColor - Color for wall sections flanking the passage
+   * @param cellColor - Color for the passage opening itself
+   */
   public drawPassage(
     cell: Cell,
     direction: Direction,
@@ -177,6 +204,13 @@ export class BrickMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a pillar (corner/intersection) where two walls meet in a hexagonal cell.
+   * Pillars are rendered at the intersections between adjacent wall directions.
+   * @param param0 - The cell coordinates (destructured as x, y)
+   * @param pillar - The pillar identifier (two-letter combination like 'ab', 'bc', etc.)
+   * @param color - The pillar color (defaults to wall color)
+   */
   public drawPillar({ x, y }: Cell, pillar: Pillar, color = this.color.wall): void {
     if (this.drawing) {
       switch (pillar) {
@@ -215,6 +249,13 @@ export class BrickMaze extends Maze {
     }
   }
 
+  /**
+   * Calculates the drawing box (bounding rectangle) for content within a hexagonal cell.
+   * Returns the largest inscribed rectangle that can fit inside the cell's walkable area.
+   * Used for positioning text, symbols, or other content within the cell.
+   * @param cell - The cell to calculate the drawing box for
+   * @returns Rectangle defining the usable drawing area within the cell
+   */
   protected drawingBox(cell: Cell): Rect {
     const { x2, x7, y2, y3 } = this.cellOffsets(cell);
 
@@ -228,6 +269,12 @@ export class BrickMaze extends Maze {
     return largestInscribedRectangle(interior);
   }
 
+  /**
+   * Draws an X mark across a hexagonal cell to indicate blocked or inaccessible areas.
+   * Renders diagonal lines from corner to corner within the cell interior.
+   * @param cell - The cell to mark with an X
+   * @param color - The X mark color (defaults to blocked color)
+   */
   public drawX(cell: Cell, color = this.color.blocked): void {
     if (this.drawing) {
       const { x2, x7, y2, y3 } = this.cellOffsets(cell);

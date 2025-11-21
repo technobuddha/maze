@@ -4,17 +4,68 @@ import { type Cartesian, modulo, type Rect } from '@technobuddha/library';
 import { type Cell, type Direction, type Kind, type Pillar } from '../geometry.ts';
 import { type DrawingSizes, Maze, type MazeProperties } from '../maze.ts';
 
-import { matrix } from './wedge-matrix.ts';
+import { wedgeMatrix } from './wedge-matrix.ts';
 
 const { SQRT2, SQRT1_2 } = Math;
 
+/**
+ * Properties for configuring a wedge maze.
+ * Inherits all standard maze properties for wedge tessellation geometry.
+ *
+ * @group Maze
+ * @category Wedge
+ */
 export type WedgeMazeProperties = MazeProperties;
 
+/**
+ * Wedge maze implementation using complex triangular wedge cells in a sophisticated tessellating pattern.
+ *
+ * Creates mazes where each cell is a wedge-shaped triangle arranged in a pattern that requires
+ * 4 different wedge orientations (kinds 0-3) to completely tessellate the plane. This creates
+ * one of the most complex maze geometries with sophisticated junction patterns and intricate
+ * geometric calculations for proper alignment.
+ *
+ * Key features:
+ * - Wedge-shaped triangular cells with 3 possible connections per cell
+ * - 4 different wedge orientations (top, right, bottom, left pointing)
+ * - Complex 4×2 cell group pattern for complete tessellation
+ * - Sophisticated trigonometric calculations using √2 and √½ constants
+ * - Variable angles and connections creating unique maze patterns
+ * - Compatible with all maze generation and solving algorithms
+ *
+ * The wedge tessellation produces highly intricate maze structures with multiple junction
+ * types and requires extensive geometric calculations to maintain proper wedge alignment
+ * while ensuring seamless connections between different wedge orientations.
+ *
+ * @group Maze
+ * @category Wedge
+ */
 export class WedgeMaze extends Maze {
+  /**
+   * Creates a new wedge maze with the specified properties.
+   *
+   * Sets default values optimized for wedge geometry:
+   * - cellSize: 32 (provides good visual proportions for complex wedge shapes)
+   * - wallSize: 1 (maintains clear wall visibility in complex geometry)
+   * - voidSize: 1 (minimal spacing for clean wedge tessellation)
+   *
+   * @param props - Configuration properties for the maze
+   */
   public constructor({ cellSize = 32, wallSize = 1, voidSize = 1, ...props }: WedgeMazeProperties) {
-    super({ cellSize, wallSize, voidSize, ...props }, matrix);
+    super({ cellSize, wallSize, voidSize, ...props }, wedgeMatrix);
   }
 
+  /**
+   * Calculates the drawing dimensions for the wedge tessellation layout.
+   *
+   * Wedge tessellation requires a complex 4×2 cell group pattern with 2×2 cell size
+   * groupings to accommodate the sophisticated wedge arrangement. Each group contains
+   * 4 horizontal cells and 2 vertical cells to properly tessellate all wedge orientations.
+   *
+   * @returns Drawing size configuration including:
+   *   - Group dimensions: 2×2 cell sizes for proper wedge spacing
+   *   - Cell grouping: 4×2 cells per group for complete tessellation pattern
+   */
   protected drawingSize(): DrawingSizes {
     return {
       groupWidth: this.cellSize * 2,
@@ -24,10 +75,39 @@ export class WedgeMaze extends Maze {
     };
   }
 
+  /**
+   * Determines the wedge orientation (kind) for a cell based on its position.
+   *
+   * Uses a sophisticated modulo calculation that combines X and Y coordinates
+   * to create the proper 4-way alternating pattern needed for wedge tessellation:
+   * - Incorporates Y-axis offset (modulo 2) multiplied by 2 for vertical alternation
+   * - Applies modulo 4 to X coordinate sum for complete 4-way rotation cycle
+   *
+   * This creates the characteristic wedge pattern where different orientations
+   * cycle through top, right, bottom, and left pointing wedges.
+   *
+   * @param cell - The cell to classify
+   * @returns Wedge kind:
+   *   - 0: Top-pointing wedge
+   *   - 1: Right-pointing wedge
+   *   - 2: Bottom-pointing wedge
+   *   - 3: Left-pointing wedge
+   */
   public cellKind(cell: Cell): number {
     return modulo(cell.x + modulo(cell.y, 2) * 2, 4);
   }
 
+  /**
+   * Calculates the origin point for drawing a wedge cell.
+   *
+   * Positions wedges correctly within the tessellating pattern using geometric
+   * calculations that account for the complex wedge arrangement. The X coordinate
+   * uses half-cell positioning (0.5 multiplier) with floor division to align
+   * wedges properly, while Y coordinates use standard cell-size intervals.
+   *
+   * @param cell - The cell to position
+   * @returns Cartesian coordinates of the cell's drawing origin
+   */
   protected cellOrigin(cell: Cell): Cartesian {
     return {
       x: Math.floor(cell.x * 0.5) * this.cellSize,
@@ -35,10 +115,40 @@ export class WedgeMaze extends Maze {
     };
   }
 
+  /**
+   * Calculates Manhattan distance between two cells in wedge geometry.
+   *
+   * Overrides the base implementation to account for the compressed X-axis
+   * in wedge tessellation where cells are positioned at half-width intervals.
+   * This ensures accurate pathfinding and distance calculations for wedge mazes.
+   *
+   * @param a - First cell
+   * @param b - Second cell
+   * @returns Manhattan distance adjusted for wedge geometry
+   */
   public override manhattanDistance(a: Cell, b: Cell): number {
     return super.manhattanDistance({ ...a, x: a.x / 2 }, { ...b, x: b.x / 2 });
   }
 
+  /**
+   * Calculates geometric offsets for rendering wedge cells of different orientations.
+   *
+   * Computes precise coordinate offsets needed to draw wedges, walls, and passages
+   * for all four wedge orientations using extensive trigonometric calculations.
+   * Uses √2 and √½ constants for diagonal calculations and maintains proper
+   * wedge geometry while accounting for cell, wall, and void sizes.
+   *
+   * The coordinate system uses a comprehensive grid of named points (x0-xd, y0-yd)
+   * that define all geometric features needed for precise wedge rendering. Different
+   * orientations use coordinate inversions to rotate the wedge shapes:
+   * - Kind 0: Normal coordinates (top-pointing)
+   * - Kind 1: Both X and Y inverted (right-pointing)
+   * - Kind 2: Y inverted only (bottom-pointing)
+   * - Kind 3: X inverted only (left-pointing)
+   *
+   * @param kind - Wedge orientation (0-3 for top, right, bottom, left)
+   * @returns Object containing named coordinate offsets for the specified orientation
+   */
   protected offsets(kind: Kind): Record<string, number> {
     const v = this.voidSize;
     const w = this.wallSize;
@@ -111,6 +221,19 @@ export class WedgeMaze extends Maze {
     }
   }
 
+  /**
+   * Erases a wedge cell by filling it with void color.
+   *
+   * Renders the complete wedge triangle shape for each orientation using the
+   * appropriate polygon vertices to form right triangles pointing in different directions:
+   * - Kind 0: Top-left, top-right, bottom-left triangle (top-pointing)
+   * - Kind 1: Bottom-left, top-right, bottom-right triangle (right-pointing)
+   * - Kind 2: Top-left, bottom-left, bottom-right triangle (bottom-pointing)
+   * - Kind 3: Top-left, top-right, bottom-right triangle (left-pointing)
+   *
+   * @param cell - The cell to erase
+   * @param color - Fill color (defaults to void color)
+   */
   public eraseCell(cell: Cell, color = this.color.void): void {
     if (this.drawing) {
       switch (this.cellKind(cell)) {
@@ -171,6 +294,17 @@ export class WedgeMaze extends Maze {
     }
   }
 
+  /**
+   * Draws the floor (interior) of a wedge cell.
+   *
+   * Renders the inner wedge area using coordinates that account for wall
+   * thickness and void spacing. Each orientation uses its specific coordinate
+   * set to create properly sized interior triangular areas with consistent
+   * insets from the cell boundaries.
+   *
+   * @param cell - The cell to draw
+   * @param color - Fill color (defaults to cell color)
+   */
   public drawFloor(cell: Cell, color = this.color.cell): void {
     if (this.drawing) {
       switch (this.cellKind(cell)) {
@@ -231,6 +365,21 @@ export class WedgeMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a wall segment for a specific wedge direction.
+   *
+   * Renders walls using rectangles for straight edges and complex polygons for
+   * angled edges. Each direction (a-l) corresponds to a specific side of a wedge
+   * orientation, with coordinates calculated using √2 geometry to align perfectly
+   * with adjacent wedge cells and maintain tessellation integrity.
+   *
+   * The implementation handles 12 different directions across 4 wedge orientations,
+   * using sophisticated polygon calculations for diagonal wall segments.
+   *
+   * @param cell - The cell containing the wall
+   * @param direction - The direction of the wall to draw (a-l)
+   * @param color - Wall color (defaults to wall color)
+   */
   public drawWall(cell: Cell, direction: Direction, color = this.color.wall): void {
     if (this.drawing) {
       switch (direction) {
@@ -339,6 +488,23 @@ export class WedgeMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a passage (opening) through a wedge wall.
+   *
+   * Creates openings in wedge walls by rendering wall segments on either side
+   * of the passage and filling the middle section with cell color. For angled
+   * walls, uses complex polygon arrangements to maintain proper geometric
+   * alignment while creating the passage opening.
+   *
+   * The implementation handles all 12 directions with sophisticated polygon
+   * calculations for diagonal passages, ensuring proper tessellation continuity
+   * across different wedge orientations.
+   *
+   * @param cell - The cell containing the passage
+   * @param direction - The direction of the passage (a-l)
+   * @param wallColor - Color for wall segments (defaults to wall color)
+   * @param cellColor - Color for passage opening (defaults to cell color)
+   */
   public drawPassage(
     cell: Cell,
     direction: Direction,
@@ -547,6 +713,22 @@ export class WedgeMaze extends Maze {
       }
     }
   }
+
+  /**
+   * Draws a pillar (wall intersection) at wedge corners.
+   *
+   * Renders pillar segments where wedge walls meet, using complex polygons and
+   * rectangles to handle the unique geometry of wedge intersections. Each pillar
+   * corresponds to adjacent wall pairs within each wedge orientation and ensures
+   * visual continuity at wedge vertices where multiple cells meet.
+   *
+   * The implementation handles 12 different pillar types corresponding to the
+   * various wedge corner configurations across all orientations.
+   *
+   * @param cell - The cell containing the pillar
+   * @param pillar - The pillar identifier (e.g., 'ab', 'bc', 'ca')
+   * @param color - Pillar color (defaults to wall color)
+   */
   public drawPillar(cell: Cell, pillar: Pillar, color = this.color.wall): void {
     if (this.drawing) {
       switch (pillar) {
@@ -681,6 +863,17 @@ export class WedgeMaze extends Maze {
     }
   }
 
+  /**
+   * Draws an X mark on a wedge cell to indicate blocked status.
+   *
+   * Renders lines from the wedge corners to create an X pattern that clearly
+   * indicates the cell is blocked or marked for special purposes during maze
+   * generation or solving. The implementation differs for each wedge orientation,
+   * creating appropriate line patterns within each triangular wedge shape.
+   *
+   * @param cell - The cell to mark with an X
+   * @param color - Line color (defaults to blocked color)
+   */
   public drawX(cell: Cell, color = this.color.blocked): void {
     if (this.drawing) {
       switch (this.cellKind(cell)) {
@@ -721,6 +914,18 @@ export class WedgeMaze extends Maze {
     }
   }
 
+  /**
+   * Calculates the bounding rectangle for a wedge cell's interior area.
+   *
+   * Returns the rectangular bounds that encompass the wedge's floor area,
+   * used for positioning text, symbols, or other content within the cell.
+   * Creates appropriately sized and positioned bounding boxes for each
+   * wedge orientation, accounting for the triangular shape constraints.
+   *
+   * @param cell - The cell to calculate bounds for
+   * @returns Rectangle defining the cell's interior bounds
+   * @throws Error if an invalid cell kind is provided
+   */
   protected drawingBox(cell: Cell): Rect {
     switch (this.cellKind(cell)) {
       case 0: {

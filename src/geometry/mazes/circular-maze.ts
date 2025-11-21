@@ -17,18 +17,49 @@ import {
 import { type DrawingSizes, Maze, type MazeProperties } from '../maze.ts';
 import { type Wall } from '../nexus.ts';
 
-import { matrix } from './circular-matrix.ts';
+import { circularMatrix } from './circular-matrix.ts';
 
+/**
+ * Properties for constructing a CircularMaze instance.
+ * Extends base MazeProperties with circular-specific parameters.
+ *
+ * @group Geometry
+ * @category Types
+ */
 export type CircularMazeProperties = MazeProperties & {
+  /** Radius of the center circle in pixels (defaults to 18) */
   readonly centerRadius?: number;
+  /** Number of segments in the center circle (defaults to 1) */
   readonly centerSegments?: number;
 };
 
+/**
+ * Circular maze implementation using polar coordinates and concentric rings.
+ * Creates mazes arranged in circular patterns with radial spokes connecting
+ * concentric rings, providing a natural polar coordinate navigation system.
+ *
+ * Features:
+ * - Concentric ring structure with radial connections
+ * - Variable cell density per ring for consistent visual appearance
+ * - Polar coordinate movement and pathfinding
+ * - Automatic masking of unused grid areas
+ * - Configurable center radius and segmentation
+ *
+ * @group Geometry
+ * @category Classes
+ */
 export class CircularMaze extends Maze {
+  /** Radius of the center circle in pixels */
   protected readonly centerRadius: number;
+  /** Number of segments in the center circle */
   protected readonly centerSegments: number;
+  /** Number of cells per ring (indexed by y-coordinate) */
   protected readonly zones: number[] = [];
 
+  /**
+   * Creates a new CircularMaze instance with circular-specific defaults.
+   * @param properties - Configuration properties with circular maze defaults
+   */
   public constructor({
     cellSize = 18,
     wallSize = 1,
@@ -47,7 +78,7 @@ export class CircularMaze extends Maze {
         wrapHorizontal: false,
         wrapVertical: false,
       },
-      matrix,
+      circularMatrix,
     );
 
     this.centerRadius = centerRadius;
@@ -55,6 +86,13 @@ export class CircularMaze extends Maze {
     this.plugin = this.circularPlugin(plugin);
   }
 
+  /**
+   * Creates a circular-specific plugin that masks unused grid areas.
+   * Applies circular masking to hide cells outside the circular boundary
+   * and then applies any additional user-provided plugin.
+   * @param plugin - Optional user-provided plugin to apply after masking
+   * @returns Combined plugin function for circular maze setup
+   */
   private circularPlugin(plugin?: MazeProperties['plugin']): MazeProperties['plugin'] {
     return (maze: Maze): void => {
       for (let y = 0; y < maze.height; ++y) {
@@ -70,6 +108,11 @@ export class CircularMaze extends Maze {
     };
   }
 
+  /**
+   * Calculates drawing dimensions for circular maze layout.
+   * Uses custom sizing to determine ring structure and cell density.
+   * @returns Drawing size configuration for circular tessellation
+   */
   protected drawingSize(): DrawingSizes {
     return {
       groupWidth: this.cellSize,
@@ -107,6 +150,12 @@ export class CircularMaze extends Maze {
     };
   }
 
+  /**
+   * Determines initial wall configuration for circular maze cells.
+   * Removes walls between rings at ring boundaries to prevent isolation.
+   * @param cell - The cell to determine initial walls for
+   * @returns Wall configuration with ring boundary walls removed
+   */
   public override initialWalls(cell: Cell): Wall {
     const wall = super.initialWalls(cell);
 
@@ -127,6 +176,12 @@ export class CircularMaze extends Maze {
     return wall;
   }
 
+  /**
+   * Determines the cell kind based on position within the circular structure.
+   * Different rings and positions require different connection patterns.
+   * @param cell - The cell to determine the kind for
+   * @returns Cell kind (0-6) representing connection pattern and ring position
+   */
   public cellKind(cell: Cell): number {
     const z0 = this.cellZone(cell);
     const zp = cell.y === 0 ? z0 : this.cellZone({ ...cell, y: cell.y - 1 });
@@ -151,10 +206,23 @@ export class CircularMaze extends Maze {
     return cell.x % 2 === 0 ? 4 : 5;
   }
 
+  /**
+   * Returns the zone (ring number) for the specified cell.
+   * Each ring has a different number of cells based on circumference.
+   * @param cell - The cell to get the zone for
+   * @returns Zone identifier representing the ring number
+   */
   public override cellZone(cell: Cell): number {
     return this.zones[cell.y];
   }
 
+  /**
+   * Calculates Manhattan distance between two cells in circular coordinates.
+   * Uses polar coordinate system to compute shortest path distance.
+   * @param a - First cell
+   * @param b - Second cell
+   * @returns Manhattan distance adapted for circular geometry
+   */
   public override manhattanDistance(a: Cell, b: Cell): number {
     const zone = this.zones[this.height - 1];
     const zoneA = { ...a, x: (a.x * zone) / this.zones[a.y] };
@@ -170,6 +238,13 @@ export class CircularMaze extends Maze {
     return Math.min(...distances);
   }
 
+  /**
+   * Resolves movement from a cell using move offset within circular maze geometry.
+   * Handles polar coordinate transformations and ring boundary conditions.
+   * @param cell - Starting cell
+   * @param move - Movement offset containing x/y deltas
+   * @returns Target cell after applying movement
+   */
   public override resolveMove(cell: Cell, move: MoveOffset): Cell {
     let { x, y } = cell;
 
@@ -202,10 +277,22 @@ export class CircularMaze extends Maze {
     return { x, y };
   }
 
+  /**
+   * Calculates the origin point for a cell in Cartesian coordinates.
+   * Converts polar coordinates to rectangular for drawing operations.
+   * @param _cell - The cell (unused in this implementation)
+   * @returns Cartesian coordinates of cell origin
+   */
   protected cellOrigin(_cell: Cell): Cartesian {
     throw new Error('not used by circular maze');
   }
 
+  /**
+   * Calculates polar coordinate offsets for a cell based on its position.
+   * Computes center point and radial boundaries for circular cell rendering.
+   * @param cell - The cell to calculate offsets for
+   * @returns Record containing polar coordinate values for cell boundaries
+   */
   protected override cellOffsets(cell: Cell): Record<string, number> {
     let { cx, cy, r0, r1, r2, r3, r4, r5 } = this.offsets(this.cellKind(cell));
 
@@ -258,6 +345,12 @@ export class CircularMaze extends Maze {
     return { cx, cy, r0, r1, r2, r3, r4, r5, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af, ag };
   }
 
+  /**
+   * Calculates base offset values for different cell kinds in polar coordinates.
+   * Provides radius and angle offsets that define cell shape geometry.
+   * @param _kind - Cell kind (unused in base calculation)
+   * @returns Record containing base polar coordinate offsets
+   */
   protected offsets(_kind: Kind): Record<string, number> {
     const cx = this.cellSize * this.height + this.centerRadius / 2;
     const cy = this.cellSize * this.height + this.centerRadius / 2;
@@ -272,6 +365,12 @@ export class CircularMaze extends Maze {
     return { cx, cy, r0, r1, r2, r3, r4, r5 };
   }
 
+  /**
+   * Erases a cell by filling it with void color in circular coordinate system.
+   * Handles both center cell (single circle) and ring cells (arc sectors).
+   * @param cell - Cell to erase
+   * @param color - Color to fill with (defaults to void color)
+   */
   public eraseCell(cell: Cell, color = this.color.void): void {
     if (this.drawing) {
       const cols = this.zones[cell.y];
@@ -286,6 +385,12 @@ export class CircularMaze extends Maze {
     }
   }
 
+  /**
+   * Draws the floor/interior of a cell in circular coordinate system.
+   * Renders center cell as circle, ring cells as arc sectors with cell color.
+   * @param cell - Cell to draw floor for
+   * @param color - Color to fill with (defaults to cell color)
+   */
   public drawFloor(cell: Cell, color = this.color.cell): void {
     if (this.drawing) {
       const cols = this.zones[cell.y];
@@ -300,6 +405,13 @@ export class CircularMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a wall segment for a cell in the specified direction.
+   * Handles different wall types (radial, circular arcs) based on direction.
+   * @param cell - Cell to draw wall for
+   * @param direction - Direction of wall to draw (a-h representing 8 directions)
+   * @param color - Color to draw wall with (defaults to wall color)
+   */
   public drawWall(cell: Cell, direction: Direction, color = this.color.wall): void {
     if (this.drawing) {
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
@@ -380,6 +492,13 @@ export class CircularMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a pillar (corner post) at the intersection of walls.
+   * Renders small circular posts at wall junctions for structural detail.
+   * @param cell - Cell containing the pillar
+   * @param pillar - Pillar type indicating which corner (ab, fb, etc.)
+   * @param color - Color to draw pillar with (defaults to wall color)
+   */
   public drawPillar(cell: Cell, pillar: Pillar, color = this.color.wall): void {
     if (this.drawing) {
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
@@ -540,6 +659,12 @@ export class CircularMaze extends Maze {
     };
   }
 
+  /**
+   * Draws a path indicator (arrow or circle) for a cell in circular coordinate system.
+   * Handles different rendering based on ring position and cell count per ring.
+   * @param cell - Cell with direction information for path rendering
+   * @param color - Color to draw path with (defaults to path color)
+   */
   public override drawPath(cell: CellDirection, color = this.color.path): void {
     if (this.drawing) {
       const cols = this.zones[cell.y];
@@ -588,6 +713,10 @@ export class CircularMaze extends Maze {
     }
   }
 
+  /**
+   * Draws mask overlays for circular maze (not implemented).
+   * Masks are not displayed in circular maze geometry.
+   */
   public override drawMasks(): void {
     // Masks aren't displayed in the circular maze
   }

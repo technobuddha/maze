@@ -1,4 +1,4 @@
-import { animate } from '@technobuddha/library';
+import { animate } from '@technobuddha/library/browser';
 
 import { type Drawing } from '../drawing/index.ts';
 import { type MazeGenerator, type MazeGeneratorProperties } from '../generator/index.ts';
@@ -6,43 +6,144 @@ import { type Maze, type MazeProperties } from '../geometry/index.ts';
 import { type MazeSolver, type MazeSolverProperties } from '../solver/index.ts';
 
 import { type Phase } from './phase.ts';
-import { type PlayMode } from './play-mode.tsx';
+import { type PlayMode } from './play-mode.ts';
 
-type MazeMaker = (props: MazeProperties) => Maze;
-type GeneratorMaker = (props: MazeGeneratorProperties) => MazeGenerator;
-type SolverMaker = (props: MazeSolverProperties) => MazeSolver;
-type Plugin = (this: void, maze: Maze) => void;
+/**
+ * Factory function type for creating maze instances.
+ *
+ * @typeParam props - Configuration properties for the maze
+ * @returns A new maze instance
+ *
+ * @group Runner
+ * @category Types
+ */
+export type MazeMaker = (props: MazeProperties) => Maze;
 
-type RunnerProperties = {
+/**
+ * Factory function type for creating maze generator instances.
+ *
+ * @typeParam props - Configuration properties for the generator
+ * @returns A new maze generator instance
+ *
+ * @group Runner
+ * @category Types
+ */
+export type GeneratorMaker = (props: MazeGeneratorProperties) => MazeGenerator;
+
+/**
+ * Factory function type for creating maze solver instances.
+ *
+ * @typeParam props - Configuration properties for the solver
+ * @returns A new maze solver instance
+ *
+ * @group Runner
+ * @category Types
+ */
+export type SolverMaker = (props: MazeSolverProperties) => MazeSolver;
+
+/**
+ * Plugin function type for extending maze functionality.
+ *
+ * @typeParam maze - The maze instance to extend
+ *
+ * @group Runner
+ * @category Types
+ */
+export type Plugin = (this: void, maze: Maze) => void;
+
+/**
+ * Configuration properties for the MazeRunner.
+ *
+ * @group Runner
+ * @category Types
+ */
+export type MazeRunnerProperties = {
+  /** Factory function for creating the maze instance */
   readonly mazeMaker: MazeMaker;
+  /** Optional factory function for creating the generator instance */
   readonly generatorMaker?: GeneratorMaker;
+  /** Optional factory function for creating the solver instance */
   readonly solverMaker?: SolverMaker;
+  /** Optional plugin function for extending maze functionality */
   readonly plugin?: Plugin;
+  /** Optional drawing interface for rendering the maze */
   readonly drawing?: Drawing;
+  /** Optional play mode configuration for each phase */
   readonly mode?: { [P in Phase]?: PlayMode };
+  /** Optional name to display when the runner starts */
   readonly name?: string;
 };
 
 let id = 0;
 
-export class Runner extends EventTarget {
+/**
+ * Orchestrates the complete maze lifecycle from generation through solving.
+ *
+ * The MazeRunner coordinates all phases of maze creation and solving, including:
+ * - Maze initialization and reset
+ * - Generation phase execution
+ * - Braiding phase for removing dead ends
+ * - Solving phase with pathfinding
+ * - Final display and observation phases
+ * - User interaction and playback control
+ *
+ * Key features:
+ * - Event-driven architecture with custom events for phase and mode changes
+ * - Configurable playback modes (pause, step, play, fast, instant, refresh)
+ * - Automatic phase progression with customizable timing
+ * - Abort capability for stopping execution
+ * - Animation support with speed control
+ * - Observation timer for automatic progression
+ *
+ * The runner follows a strict phase sequence: maze → generate → braid → solve → final → observe → exit.
+ * Each phase can have different playback modes and the runner handles transitions automatically
+ * based on completion status and user commands.
+ *
+ * @group Runner
+ * @category Core
+ */
+export class MazeRunner extends EventTarget {
+  /** The maze instance managed by this runner */
   public readonly maze: Maze;
+  /** The generator instance for maze creation, if provided */
   public readonly generator?: MazeGenerator;
+  /** The solver instance for pathfinding, if provided */
   public readonly solver?: MazeSolver;
+  /** Current playback mode controlling execution speed and behavior */
   public mode: PlayMode = 'pause';
+  /** Current execution phase in the maze lifecycle */
   public phase: Phase = 'maze';
+  /** Unique identifier for this runner instance */
   public readonly id: number;
+  /** Play mode configuration for each phase of execution */
   public phasePlayMode: Record<Phase, PlayMode>;
 
+  /** Active step generator for the current phase */
   private stepper: AsyncGenerator<void> | undefined = undefined;
+  /** Base execution speed for the current phase */
   private baseSpeed = 1;
+  /** Current execution speed multiplier */
   private speed = 1;
+  /** Whether execution is currently active */
   private playing = true;
+  /** Whether execution has been aborted */
   private aborted = false;
+  /** Delay between execution steps in milliseconds */
   private delay = 0;
+  /** Duration to observe the completed maze before auto-progression */
   public observationTime = 10000;
+  /** Timer for automatic progression from observation phase */
   private observationTimer: ReturnType<typeof setTimeout> | undefined = undefined;
 
+  /**
+   * Creates a new MazeRunner with the specified configuration.
+   *
+   * Initializes the maze, generator, and solver instances using the provided factory functions.
+   * Sets up the phase play mode configuration and optionally displays a startup message.
+   * The maze is automatically reset to prepare for generation.
+   *
+   * @param props - Configuration properties for the runner
+   */
   public constructor({
     mazeMaker,
     generatorMaker,
@@ -51,7 +152,7 @@ export class Runner extends EventTarget {
     drawing,
     mode,
     name,
-  }: RunnerProperties) {
+  }: MazeRunnerProperties) {
     super();
 
     this.id = id++;
@@ -80,6 +181,16 @@ export class Runner extends EventTarget {
     };
   }
 
+  /**
+   * Sets the playback mode and handles special mode behaviors.
+   *
+   * Updates the current play mode and triggers appropriate actions:
+   * - 'pause': Stops execution
+   * - 'refresh': Switches to exit phase and restarts
+   * - Other modes: Updates play mode and dispatches command event
+   *
+   * @param playMode - The new playback mode to set
+   */
   public setMode(playMode: PlayMode): void {
     switch (playMode) {
       case 'pause': {
@@ -105,6 +216,14 @@ export class Runner extends EventTarget {
     }
   }
 
+  /**
+   * Internal method to configure playback behavior based on the mode.
+   *
+   * Sets execution parameters including playing state, speed, and delay values.
+   * Clears any active observation timer and dispatches a mode change event.
+   *
+   * @param playMode - The playback mode to configure
+   */
   private setPlayMode(playMode: PlayMode): void {
     if (this.observationTimer) {
       clearTimeout(this.observationTimer);
@@ -155,6 +274,14 @@ export class Runner extends EventTarget {
     }
   }
 
+  /**
+   * Transitions to a new execution phase and configures the appropriate stepper.
+   *
+   * Sets up the step generator and base speed for the new phase, then dispatches
+   * a phase change event and applies the configured play mode for that phase.
+   *
+   * @param phase - The new phase to transition to
+   */
   private switchPhase(phase: Phase): void {
     if (!this.aborted) {
       if (this.maze && this.generator && this.solver) {
@@ -188,6 +315,15 @@ export class Runner extends EventTarget {
     }
   }
 
+  /**
+   * Executes the current phase stepper with animation support.
+   *
+   * Runs the active stepper generator with speed control and animation timing.
+   * Continues execution until the stepper completes or playback is paused.
+   * Includes delay handling for smooth animation at slower speeds.
+   *
+   * @returns Promise that resolves to true when the stepper completes, false if paused
+   */
   private async run(): Promise<boolean> {
     if (!this.aborted) {
       if (this.stepper) {
@@ -218,6 +354,14 @@ export class Runner extends EventTarget {
     return true;
   }
 
+  /**
+   * Waits for a command event to be dispatched.
+   *
+   * Creates a promise that resolves when a 'command' event is received,
+   * typically used to pause execution until user input is provided.
+   *
+   * @returns Promise that resolves when a command event occurs
+   */
   private async waitForCommand(): Promise<void> {
     return new Promise((resolve) => {
       const handler = (): void => {
@@ -228,6 +372,24 @@ export class Runner extends EventTarget {
     });
   }
 
+  /**
+   * Executes the complete maze lifecycle from generation through solving.
+   *
+   * Orchestrates the full sequence of maze phases:
+   * 1. 'maze': Initial maze drawing
+   * 2. 'generate': Run maze generation algorithm
+   * 3. 'braid': Apply braiding to remove dead ends
+   * 4. 'solve': Execute pathfinding algorithm
+   * 5. 'final': Draw solution and prepare for observation
+   * 6. 'observe': Display completed maze with optional auto-progression
+   * 7. 'exit': Complete execution
+   *
+   * Handles phase transitions, user commands, and error conditions.
+   * Execution can be paused and resumed based on play mode and user interaction.
+   *
+   * @returns Promise that resolves when execution completes or is aborted
+   * @throws Error if execution is aborted
+   */
   public async execute(): Promise<void> {
     if (!this.aborted) {
       if (this.maze && this.generator && this.solver) {
@@ -313,12 +475,24 @@ export class Runner extends EventTarget {
     }
   }
 
+  /**
+   * Triggers a complete redraw of the current maze state.
+   *
+   * Calls the maze's draw method to refresh the visual representation.
+   * Useful for manual refreshes or when the display needs updating.
+   */
   public draw(): void {
     if (this.maze) {
       this.maze.draw();
     }
   }
 
+  /**
+   * Aborts the current execution and performs cleanup.
+   *
+   * Stops playback, sets the aborted flag, and disposes of the solver instance.
+   * Once aborted, the runner cannot be restarted and should be discarded.
+   */
   public abort(): void {
     this.playing = false;
     this.aborted = true;

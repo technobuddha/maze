@@ -3,20 +3,70 @@ import { type Cartesian, modulo, type Rect, toRadians } from '@technobuddha/libr
 import { type Cell, type Direction, type Kind, type Pillar } from '../geometry.ts';
 import { type DrawingSizes, Maze, type MazeProperties } from '../maze.ts';
 
-import { kindMatrix, matrix, offsetXMatrix, offsetYMatrix } from './pentagon-matrix.ts';
+import { kindMatrix, pentagonMatrix, offsetXMatrix, offsetYMatrix } from './pentagon-matrix.ts';
 
+/**
+ * Properties for configuring a pentagon maze.
+ * Inherits all standard maze properties for pentagon tessellation geometry.
+ *
+ * @group Maze
+ * @category Pentagon
+ */
 export type PentagonMazeProperties = MazeProperties;
 
+/**
+ * Pentagon maze implementation using regular pentagonal cells in a complex tessellation.
+ *
+ * Creates mazes where each cell is a regular pentagon arranged in a sophisticated tiling
+ * pattern that requires 4 different pentagon orientations (kinds 0-3) to tessellate the
+ * plane. The tessellation follows a 5×4 repeating pattern with specific offset positioning
+ * to ensure proper geometric alignment.
+ *
+ * Key features:
+ * - Regular pentagonal cells with 5 possible connections per cell
+ * - 4 different pentagon orientations for complete tessellation
+ * - Complex 5×4 repeating pattern with non-uniform spacing
+ * - Precise geometric calculations for proper pentagon alignment
+ * - Full support for all maze generation algorithms
+ *
+ * The pentagon tessellation is one of the most geometrically complex maze types,
+ * requiring sophisticated offset matrices and careful angle calculations to maintain
+ * the regular pentagon shape while ensuring seamless connections between cells.
+ *
+ * @group Maze
+ * @category Pentagon
+ */
 export class PentagonMaze extends Maze {
+  /**
+   * Creates a new pentagon maze with the specified properties.
+   *
+   * Sets default values optimized for pentagon geometry:
+   * - cellSize: 28 (provides good visual proportions for pentagons)
+   * - wallSize: 2 (maintains clear wall visibility)
+   * - voidSize: 1 (minimal spacing for tight tessellation)
+   *
+   * @param props - Configuration properties for the maze
+   */
   public constructor({
     cellSize = 28,
     wallSize = 2,
     voidSize = 1,
     ...props
   }: PentagonMazeProperties) {
-    super({ cellSize, wallSize, voidSize, ...props }, matrix);
+    super({ cellSize, wallSize, voidSize, ...props }, pentagonMatrix);
   }
 
+  /**
+   * Calculates the drawing dimensions for the pentagon tessellation layout.
+   *
+   * Pentagon tessellation requires a 5×4 cell group pattern with significant padding
+   * to accommodate the complex geometric arrangement. The group dimensions are based
+   * on 5 cell sizes to provide adequate space for the irregular pentagon spacing.
+   *
+   * @returns Drawing size configuration including:
+   *   - 5×5 cell size groups (accommodating 4×5 cell pattern)
+   *   - Uniform padding on all sides for proper visual alignment
+   */
   protected drawingSize(): DrawingSizes {
     return {
       groupWidth: this.cellSize * 5,
@@ -30,10 +80,31 @@ export class PentagonMaze extends Maze {
     };
   }
 
+  /**
+   * Determines the pentagon orientation (kind) for a cell based on its position.
+   *
+   * Uses the pre-computed kind matrix to determine which of the 4 pentagon
+   * orientations (0-3) should be used at each grid position. The pattern
+   * repeats every 5 rows and 4 columns to create the complete tessellation.
+   *
+   * @param cell - The cell to classify
+   * @returns Pentagon kind (0-3) representing different orientations
+   */
   public cellKind(cell: Cell): number {
     return kindMatrix[modulo(cell.y, 5)][modulo(cell.x, 4)];
   }
 
+  /**
+   * Calculates the origin point for drawing a pentagon cell.
+   *
+   * Uses pre-computed offset matrices to position pentagons correctly within
+   * the tessellation. The irregular spacing required by pentagon geometry
+   * necessitates these complex offset calculations to ensure proper alignment
+   * and seamless connections between adjacent cells.
+   *
+   * @param cell - The cell to position
+   * @returns Cartesian coordinates of the cell's drawing origin
+   */
   public cellOrigin(cell: Cell): Cartesian {
     const x = offsetXMatrix[modulo(cell.y, 5)][modulo(cell.x, 4)] * this.cellSize;
     const y = offsetYMatrix[modulo(cell.y, 5)][modulo(cell.x, 4)] * this.cellSize;
@@ -44,6 +115,21 @@ export class PentagonMaze extends Maze {
     };
   }
 
+  /**
+   * Calculates geometric offsets for rendering pentagon cells of different orientations.
+   *
+   * Computes precise coordinate offsets needed to draw pentagons, walls, and passages
+   * for each of the 4 pentagon orientations. Uses trigonometric calculations based on
+   * 22.5° angles (half of 45°) to maintain regular pentagon geometry while accounting
+   * for cell, wall, and void sizes.
+   *
+   * The coordinate system uses a grid of named points (x0-xk, y0-yh) that define
+   * the key geometric features of each pentagon orientation, enabling precise
+   * rendering of walls, passages, and decorative elements.
+   *
+   * @param kind - Pentagon orientation (0-3)
+   * @returns Object containing named coordinate offsets for the specified kind
+   */
   protected offsets(kind: Kind): Record<string, number> {
     const c = this.cellSize;
     const v = this.voidSize;
@@ -52,6 +138,7 @@ export class PentagonMaze extends Maze {
     const { SQRT1_2 } = Math;
     const COT225 = Math.sin(toRadians(22.5)) / Math.cos(toRadians(22.5));
 
+    // Base coordinate calculations for kind 0 (standard orientation)
     const x0 = 0;
     const x1 = x0 + v;
 
@@ -61,7 +148,7 @@ export class PentagonMaze extends Maze {
     const x3 = x5 - w * SQRT1_2;
     const x2 = x3 - v * SQRT1_2;
 
-    const xa = x0 + c * 0.5;
+    const xa = x0 + c * 0.5; // Center X coordinate
     const x9 = xa - v * SQRT1_2;
     const xb = xa + v * SQRT1_2;
     const x8 = xa - w * SQRT1_2;
@@ -86,7 +173,7 @@ export class PentagonMaze extends Maze {
     const y5 = y7 - v;
     const y3 = y5 - w;
 
-    const yh = y0 + c * 1.5;
+    const yh = y0 + c * 1.5; // Extended height for pentagon geometry
 
     const y6 = y7 - v * COT225;
     const y4 = y6 - w * COT225;
@@ -102,6 +189,7 @@ export class PentagonMaze extends Maze {
 
     switch (kind) {
       case 0: {
+        // Standard pentagon orientation
         // prettier-ignore
         return {
           x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, xa, xb, xc, xd, xe, xf, xg, xh, xi, xj, xk,
@@ -110,6 +198,7 @@ export class PentagonMaze extends Maze {
       }
 
       case 1: {
+        // 90-degree rotated pentagon (X and Y coordinates swapped and transformed)
         // prettier-ignore
         return {
           x0: y0, x1: y1, x2: y2, x3: y3, x4: y4, x5: y5, x6: y6, x7: y7, x8: y8, x9: y9, xa: ya,
@@ -121,6 +210,7 @@ export class PentagonMaze extends Maze {
       }
 
       case 2: {
+        // 180-degree rotated pentagon (coordinates inverted)
         // prettier-ignore
         return {
           x0: yh-yh, x1: yh-yg, x2: yh-yf, x3: yh-ye, x4: yh-yd, x5: yh-yc, x6: yh-yb, x7: yh-ya,
@@ -132,6 +222,7 @@ export class PentagonMaze extends Maze {
       }
 
       case 3: {
+        // 270-degree rotated pentagon (Y coordinates inverted)
         // prettier-ignore
         return {
           x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, xa, xb, xc, xd, xe, xf, xg, xh, xi, xj, xk,
@@ -147,6 +238,16 @@ export class PentagonMaze extends Maze {
     return {};
   }
 
+  /**
+   * Erases a pentagon cell by filling it with void color.
+   *
+   * Renders the complete pentagon shape for each orientation using the
+   * appropriate polygon vertices. Each kind uses different coordinate
+   * sets to create the properly oriented pentagon outline.
+   *
+   * @param cell - The cell to erase
+   * @param color - Fill color (defaults to void color)
+   */
   public eraseCell(cell: Cell, color = this.color.void): void {
     if (this.drawing) {
       switch (this.cellKind(cell)) {
@@ -220,6 +321,16 @@ export class PentagonMaze extends Maze {
     }
   }
 
+  /**
+   * Draws the floor (interior) of a pentagon cell.
+   *
+   * Renders the inner pentagon area using coordinates that account for
+   * wall thickness and void spacing. Each orientation uses its specific
+   * coordinate set to create the properly sized interior pentagon.
+   *
+   * @param cell - The cell to draw
+   * @param color - Fill color (defaults to cell color)
+   */
   public drawFloor(cell: Cell, color = this.color.cell): void {
     if (this.drawing) {
       switch (this.cellKind(cell)) {
@@ -295,29 +406,41 @@ export class PentagonMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a wall segment for a specific pentagon direction.
+   *
+   * Renders walls using rectangles for straight edges and polygons for
+   * diagonal edges. Each direction (a-t) corresponds to a specific side
+   * of a pentagon orientation, with coordinates calculated to align
+   * perfectly with adjacent cells.
+   *
+   * @param cell - The cell containing the wall
+   * @param direction - The direction of the wall to draw (a-t)
+   * @param color - Wall color (defaults to wall color)
+   */
   public drawWall(cell: Cell, direction: Direction, color = this.color.wall): void {
     if (this.drawing) {
-      // Kind 0
+      // Pentagon walls for each kind and direction
+      // Uses precise geometric calculations to align wall segments
+      // with pentagon edges and maintain tessellation integrity
 
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (direction) {
+        // Kind 0 pentagon directions (a-e)
         case 'a': {
           const { x5, xf, y1, y2 } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x5, y: y1 }, { x: xf, y: y2 }, color);
           break;
         }
 
         case 'b': {
           const { xf, xj, y2, y3 } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: xf, y: y2 }, { x: xj, y: y3 }, color);
           break;
         }
 
         case 'c': {
           const { xa, xc, xe, xf, y8, ya, yc, yd } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: xa, y: yc },
@@ -332,7 +455,6 @@ export class PentagonMaze extends Maze {
 
         case 'd': {
           const { x5, x6, x8, xa, y8, ya, yc, yd } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: x6, y: y8 },
@@ -347,23 +469,19 @@ export class PentagonMaze extends Maze {
 
         case 'e': {
           const { x1, x5, y2, y3 } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x1, y: y2 }, { x: x5, y: y3 }, color);
           break;
         }
 
-        // Kind 1
-
+        // Kind 1 pentagon directions (f-j)
         case 'f': {
           const { x2, x3, y1, y5 } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x2, y: y1 }, { x: x3, y: y5 }, color);
           break;
         }
 
         case 'g': {
           const { x8, xa, xc, xd, y5, y6, y8, ya } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: xa, y: y5 },
@@ -378,7 +496,6 @@ export class PentagonMaze extends Maze {
 
         case 'h': {
           const { x8, xa, xc, xd, ya, yc, ye, yf } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: xc, y: ya },
@@ -393,44 +510,37 @@ export class PentagonMaze extends Maze {
 
         case 'i': {
           const { x2, x3, yf, yj } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x2, y: yf }, { x: x3, y: yj }, color);
           break;
         }
 
         case 'j': {
           const { x1, x2, y5, yf } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x1, y: y5 }, { x: x2, y: yf }, color);
           break;
         }
 
-        // Kind 2
-
+        // Kind 2 pentagon directions (k-o)
         case 'k': {
           const { xe, xf, y1, y5 } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: xe, y: y1 }, { x: xf, y: y5 }, color);
           break;
         }
 
         case 'l': {
           const { xf, xg, y5, yf } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: xf, y: y5 }, { x: xg, y: yf }, color);
           break;
         }
 
         case 'm': {
           const { xe, xf, yf, yj } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: xe, y: yf }, { x: xf, y: yj }, color);
           break;
         }
 
         case 'n': {
           const { x4, x5, x7, x9, ya, yc, ye, yf } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: x5, y: ya },
@@ -445,7 +555,6 @@ export class PentagonMaze extends Maze {
 
         case 'o': {
           const { x4, x5, x7, x9, y5, y6, y8, ya } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: x5, y: ya },
@@ -458,11 +567,9 @@ export class PentagonMaze extends Maze {
           break;
         }
 
-        // Kind 3
-
+        // Kind 3 pentagon directions (p-t)
         case 'p': {
           const { x5, x6, x8, xa, y4, y5, y7, y9 } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: x5, y: y7 },
@@ -477,7 +584,6 @@ export class PentagonMaze extends Maze {
 
         case 'q': {
           const { xa, xc, xe, xf, y4, y5, y7, y9 } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: xa, y: y5 },
@@ -492,21 +598,18 @@ export class PentagonMaze extends Maze {
 
         case 'r': {
           const { xf, xj, ye, yf } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: xf, y: ye }, { x: xj, y: yf }, color);
           break;
         }
 
         case 's': {
           const { x5, xf, yf, yg } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x5, y: yf }, { x: xf, y: yg }, color);
           break;
         }
 
         case 't': {
           const { x1, x5, ye, yf } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x1, y: ye }, { x: x5, y: yf }, color);
           break;
         }
@@ -516,23 +619,34 @@ export class PentagonMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a pillar (wall intersection) at pentagon corners.
+   *
+   * Renders pillar segments where pentagon walls meet, using rectangles
+   * for simple intersections and complex polygons for multi-wall junctions.
+   * Each pillar corresponds to adjacent wall pairs (e.g., 'ab', 'bc') and
+   * ensures visual continuity at pentagon vertices.
+   *
+   * @param cell - The cell containing the pillar
+   * @param pillar - The pillar identifier (e.g., 'ab', 'bc')
+   * @param color - Pillar color (defaults to wall color)
+   */
   public drawPillar(cell: Cell, pillar: Pillar, color = this.color.wall): void {
     if (this.drawing) {
+      // Pillar rendering for pentagon corners and intersections
+      // Each pillar corresponds to where two adjacent pentagon sides meet
+
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (pillar) {
-        // Kind 0
-
+        // Kind 0 pentagon pillars (ab, bc, cd, de, ea)
         case 'ab': {
           const { xf, xj, y1, y2 } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: xf, y: y1 }, { x: xj, y: y2 }, color);
-
           break;
         }
 
         case 'bc': {
           const { xe, xf, xj, y3, y4, y6, y8, ya } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: xf, y: y3 },
@@ -549,7 +663,6 @@ export class PentagonMaze extends Maze {
 
         case 'cd': {
           const { x8, xa, xc, yc, yd, yf } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: xa, y: yc },
@@ -564,7 +677,6 @@ export class PentagonMaze extends Maze {
 
         case 'de': {
           const { x1, x5, x6, y3, y4, y6, y8, ya } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: x1, y: y3 },
@@ -581,17 +693,13 @@ export class PentagonMaze extends Maze {
 
         case 'ea': {
           const { x1, x5, y1, y2 } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x1, y: y1 }, { x: x5, y: y2 }, color);
-
           break;
         }
 
-        // Kind 1
-
+        // Kind 1 pentagon pillars (fg, gh, hi, ij, jf)
         case 'fg': {
           const { x3, x4, x6, x8, xa, y1, y5, y6 } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: x3, y: y1 },
@@ -608,7 +716,6 @@ export class PentagonMaze extends Maze {
 
         case 'gh': {
           const { xc, xd, xf, y8, ya, yc } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: xd, y: y8 },
@@ -618,13 +725,11 @@ export class PentagonMaze extends Maze {
             ],
             color,
           );
-
           break;
         }
 
         case 'hi': {
           const { x3, x4, x6, x8, xa, ye, yf, yj } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: x3, y: yf },
@@ -641,41 +746,31 @@ export class PentagonMaze extends Maze {
 
         case 'ij': {
           const { x1, x2, yf, yj } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x1, y: yf }, { x: x2, y: yj }, color);
-
           break;
         }
 
         case 'jf': {
           const { x1, x2, y1, y5 } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x1, y: y1 }, { x: x2, y: y5 }, color);
-
           break;
         }
 
-        // Kind 2
-
+        // Kind 2 pentagon pillars (kl, lm, mn, no, ok)
         case 'kl': {
           const { xf, xg, y1, y5 } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: xf, y: y1 }, { x: xg, y: y5 }, color);
-
           break;
         }
 
         case 'lm': {
           const { xf, xg, yf, yj } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: xf, y: yf }, { x: xg, y: yj }, color);
-
           break;
         }
 
         case 'mn': {
           const { x7, x9, xb, xd, xe, ye, yf, yj } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: x9, y: ye },
@@ -692,7 +787,6 @@ export class PentagonMaze extends Maze {
 
         case 'no': {
           const { x2, x4, x5, y8, ya, yc } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: x4, y: y8 },
@@ -702,13 +796,11 @@ export class PentagonMaze extends Maze {
             ],
             color,
           );
-
           break;
         }
 
         case 'ok': {
           const { x7, x9, xb, xd, xe, y1, y5, y6 } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: xb, y: y1 },
@@ -723,11 +815,9 @@ export class PentagonMaze extends Maze {
           break;
         }
 
-        // Kind 3
-
+        // Kind 3 pentagon pillars (pq, qr, rs, st, tp)
         case 'pq': {
           const { x8, xa, xc, y2, y4, y5 } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: x8, y: y4 },
@@ -737,13 +827,11 @@ export class PentagonMaze extends Maze {
             ],
             color,
           );
-
           break;
         }
 
         case 'qr': {
           const { xe, xf, xj, y7, y9, yb, yd, ye } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: xe, y: y9 },
@@ -760,23 +848,18 @@ export class PentagonMaze extends Maze {
 
         case 'rs': {
           const { xf, xj, yf, yg } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: xf, y: yf }, { x: xj, y: yg }, color);
-
           break;
         }
 
         case 'st': {
           const { x1, x5, yf, yg } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x1, y: yf }, { x: x5, y: yg }, color);
-
           break;
         }
 
         case 'tp': {
           const { x1, x5, x6, y7, y9, yb, yd, ye } = this.cellOffsets(cell);
-
           this.drawing.polygon(
             [
               { x: x5, y: y7 },
@@ -796,6 +879,19 @@ export class PentagonMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a passage (opening) through a pentagon wall.
+   *
+   * Creates openings in pentagon walls by rendering wall segments on either
+   * side of the passage and filling the middle section with cell color.
+   * This creates the visual effect of an opening while maintaining wall
+   * continuity around the passage edges.
+   *
+   * @param cell - The cell containing the passage
+   * @param direction - The direction of the passage (a-t)
+   * @param wallColor - Color for wall segments (defaults to wall color)
+   * @param cellColor - Color for passage opening (defaults to cell color)
+   */
   public drawPassage(
     cell: Cell,
     direction: Direction,
@@ -803,13 +899,14 @@ export class PentagonMaze extends Maze {
     cellColor = this.color.cell,
   ): void {
     if (this.drawing) {
+      // Passage rendering creates openings in pentagon walls
+      // by drawing partial wall segments with a cell-colored gap
+
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (direction) {
-        // Kind 0
-
+        // Kind 0 pentagon passages (a-e)
         case 'a': {
           const { x1, x5, xf, xj, y0, y1 } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x1, y: y0 }, { x: x5, y: y1 }, wallColor);
           this.drawing.rect({ x: x5, y: y0 }, { x: xf, y: y1 }, cellColor);
           this.drawing.rect({ x: xf, y: y0 }, { x: xj, y: y1 }, wallColor);
@@ -818,7 +915,6 @@ export class PentagonMaze extends Maze {
 
         case 'b': {
           const { xk, xj, y1, y2, y3, y5 } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: xk, y: y1 }, { x: xj, y: y2 }, wallColor);
           this.drawing.rect({ x: xk, y: y2 }, { x: xj, y: y3 }, cellColor);
           this.drawing.rect({ x: xk, y: y3 }, { x: xj, y: y5 }, wallColor);
@@ -897,18 +993,15 @@ export class PentagonMaze extends Maze {
 
         case 'e': {
           const { x0, x1, y1, y2, y3, y5 } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x0, y: y1 }, { x: x1, y: y2 }, wallColor);
           this.drawing.rect({ x: x0, y: y2 }, { x: x1, y: y3 }, cellColor);
           this.drawing.rect({ x: x0, y: y3 }, { x: x1, y: y5 }, wallColor);
           break;
         }
 
-        // Kind 1
-
+        // Kind 1 pentagon passages (f-j)
         case 'f': {
           const { x1, x2, x3, x5, y0, y1 } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x1, y: y0 }, { x: x2, y: y1 }, wallColor);
           this.drawing.rect({ x: x2, y: y0 }, { x: x3, y: y1 }, cellColor);
           this.drawing.rect({ x: x3, y: y0 }, { x: x5, y: y1 }, wallColor);
@@ -985,7 +1078,6 @@ export class PentagonMaze extends Maze {
 
         case 'i': {
           const { x1, x2, x3, x5, yj, yk } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x1, y: yj }, { x: x2, y: yk }, wallColor);
           this.drawing.rect({ x: x2, y: yj }, { x: x3, y: yk }, cellColor);
           this.drawing.rect({ x: x3, y: yj }, { x: x5, y: yk }, wallColor);
@@ -994,18 +1086,15 @@ export class PentagonMaze extends Maze {
 
         case 'j': {
           const { x0, x1, y1, y5, yf, yj } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x0, y: y1 }, { x: x1, y: y5 }, wallColor);
           this.drawing.rect({ x: x0, y: y5 }, { x: x1, y: yf }, cellColor);
           this.drawing.rect({ x: x0, y: yf }, { x: x1, y: yj }, wallColor);
           break;
         }
 
-        // Kind 2
-
+        // Kind 2 pentagon passages (k-o)
         case 'k': {
           const { xc, xe, xf, xg, y0, y1 } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: xc, y: y0 }, { x: xe, y: y1 }, wallColor);
           this.drawing.rect({ x: xe, y: y0 }, { x: xf, y: y1 }, cellColor);
           this.drawing.rect({ x: xf, y: y0 }, { x: xg, y: y1 }, wallColor);
@@ -1014,7 +1103,6 @@ export class PentagonMaze extends Maze {
 
         case 'l': {
           const { xg, xh, y1, y5, yf, yj } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: xg, y: y1 }, { x: xh, y: y5 }, wallColor);
           this.drawing.rect({ x: xg, y: y5 }, { x: xh, y: yf }, cellColor);
           this.drawing.rect({ x: xg, y: yf }, { x: xh, y: yj }, wallColor);
@@ -1023,7 +1111,6 @@ export class PentagonMaze extends Maze {
 
         case 'm': {
           const { xc, xe, xf, xg, yj, yk } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: xc, y: yj }, { x: xe, y: yk }, wallColor);
           this.drawing.rect({ x: xe, y: yj }, { x: xf, y: yk }, cellColor);
           this.drawing.rect({ x: xf, y: yj }, { x: xg, y: yk }, wallColor);
@@ -1100,8 +1187,7 @@ export class PentagonMaze extends Maze {
           break;
         }
 
-        // Kind 3
-
+        // Kind 3 pentagon passages (p-t)
         case 'p': {
           const { x2, x3, x4, x5, x7, x8, x9, xa, y1, y2, y3, y4, y6, y7, y8, y9 } =
             this.cellOffsets(cell);
@@ -1175,7 +1261,6 @@ export class PentagonMaze extends Maze {
 
         case 'r': {
           const { xj, xk, yc, ye, yf, yg } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: xj, y: yc }, { x: xk, y: ye }, wallColor);
           this.drawing.rect({ x: xj, y: ye }, { x: xk, y: yf }, cellColor);
           this.drawing.rect({ x: xj, y: yf }, { x: xk, y: yg }, wallColor);
@@ -1184,7 +1269,6 @@ export class PentagonMaze extends Maze {
 
         case 's': {
           const { x1, x5, xf, xj, yg, yh } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x1, y: yg }, { x: x5, y: yh }, wallColor);
           this.drawing.rect({ x: x5, y: yg }, { x: xf, y: yh }, cellColor);
           this.drawing.rect({ x: xf, y: yg }, { x: xj, y: yh }, wallColor);
@@ -1193,7 +1277,6 @@ export class PentagonMaze extends Maze {
 
         case 't': {
           const { x0, x1, yc, ye, yf, yg } = this.cellOffsets(cell);
-
           this.drawing.rect({ x: x0, y: yc }, { x: x1, y: ye }, wallColor);
           this.drawing.rect({ x: x0, y: ye }, { x: x1, y: yf }, cellColor);
           this.drawing.rect({ x: x0, y: yf }, { x: x1, y: yg }, wallColor);
@@ -1205,11 +1288,22 @@ export class PentagonMaze extends Maze {
     }
   }
 
+  /**
+   * Draws an X mark on a pentagon cell to indicate blocked status.
+   *
+   * Renders lines from the pentagon center to each vertex, creating
+   * a star-like pattern that clearly indicates the cell is blocked
+   * or marked for special purposes during maze generation or solving.
+   *
+   * @param cell - The cell to mark with an X
+   * @param color - Line color (defaults to blocked color)
+   */
   public drawX(cell: Cell, color = this.color.blocked): void {
     if (this.drawing) {
       switch (this.cellKind(cell)) {
         case 0: {
           const { x5, xa, xf, y2, y4, yc } = this.cellOffsets(cell);
+          // Draw lines from pentagon center to each vertex
           this.drawing.line({ x: x5, y: y2 }, { x: (x5 + xf) / 2, y: (y2 + y4) / 2 }, color);
           this.drawing.line({ x: xf, y: y2 }, { x: (x5 + xf) / 2, y: (y2 + y4) / 2 }, color);
           this.drawing.line({ x: x5, y: y4 }, { x: (x5 + xf) / 2, y: (y2 + y4) / 2 }, color);
@@ -1249,6 +1343,17 @@ export class PentagonMaze extends Maze {
     }
   }
 
+  /**
+   * Calculates the bounding rectangle for a pentagon cell's interior area.
+   *
+   * Returns the rectangular bounds that encompass the pentagon's floor area,
+   * used for positioning text, symbols, or other content within the cell.
+   * Each pentagon orientation has different interior dimensions.
+   *
+   * @param cell - The cell to calculate bounds for
+   * @returns Rectangle defining the cell's interior bounds
+   * @throws Error if an unknown cell kind is encountered
+   */
   protected drawingBox(cell: Cell): Rect {
     switch (this.cellKind(cell)) {
       case 0: {

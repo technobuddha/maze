@@ -1,6 +1,6 @@
 import { create2dArray } from '@technobuddha/library';
 
-import { type Cell } from '../../geometry/index.ts';
+import { type Cell } from '../geometry/index.ts';
 
 import { Robot, type RobotProperties } from './robot.ts';
 import { RobotError } from './robot-error.ts';

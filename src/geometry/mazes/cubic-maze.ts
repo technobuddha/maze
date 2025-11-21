@@ -10,18 +10,41 @@ import {
 import { type Cell, type Direction, type Kind, type Pillar } from '../geometry.ts';
 import { type DrawingSizes, Maze, type MazeProperties } from '../maze.ts';
 
-import { matrix } from './cubic-matrix.ts';
+import { cubicMatrix } from './cubic-matrix.ts';
 
 const SIN15 = Math.sin(toRadians(15));
 const COS15 = Math.cos(toRadians(15));
 
+/**
+ * Properties for configuring a cubic maze.
+ * Inherits all standard maze properties for cubic tessellation geometry.
+ * @group Geometry
+ * @category Mazes
+ */
 export type CubicMazeProperties = MazeProperties;
 
+/**
+ * Cubic maze implementation using square tessellation with diagonal walls.
+ * Creates a maze where each cell is a square with possible diagonal connections,
+ * resulting in a more complex path structure than standard square mazes.
+ * Uses 15-degree angle offsets for visual presentation of cubic geometry.
+ * @group Geometry
+ * @category Mazes
+ */
 export class CubicMaze extends Maze {
+  /**
+   * Creates a new cubic maze with square tessellation and diagonal connections.
+   * @param properties - Maze properties including cell size, wall size, and void size
+   */
   public constructor({ cellSize = 24, wallSize = 2, voidSize = 2, ...props }: CubicMazeProperties) {
-    super({ cellSize, wallSize, voidSize, ...props }, matrix);
+    super({ cellSize, wallSize, voidSize, ...props }, cubicMatrix);
   }
 
+  /**
+   * Calculates drawing dimensions for cubic maze rendering.
+   * Uses 15-degree angle offsets to create visual cubic effect.
+   * @returns Drawing size configuration with group dimensions and padding
+   */
   protected drawingSize(): DrawingSizes {
     return {
       groupWidth: this.cellSize * 2 * COS15,
@@ -35,10 +58,22 @@ export class CubicMaze extends Maze {
     };
   }
 
+  /**
+   * Determines the cell kind for cubic maze tessellation pattern.
+   * Returns value 0-5 based on position modulo for different cell orientations.
+   * @param cell - Cell to determine kind for
+   * @returns Cell kind number (0-5) indicating orientation and connection pattern
+   */
   public cellKind(cell: Cell): number {
     return modulo(cell.x, 3) + 3 * modulo(cell.y, 2);
   }
 
+  /**
+   * Calculates the origin point for a cell in the cubic coordinate system.
+   * Applies 15-degree angle transformations and alternating row offsets.
+   * @param cell - Cell to calculate origin for
+   * @returns Cartesian coordinates of cell origin point
+   */
   protected cellOrigin(cell: Cell): Cartesian {
     let x = Math.floor((cell.x * 2) / 3) * this.cellSize * COS15;
     let y = cell.y * this.cellSize * SIN15 * 5;
@@ -54,10 +89,23 @@ export class CubicMaze extends Maze {
     return { x, y };
   }
 
+  /**
+   * Calculates Manhattan distance between two cells in cubic coordinate system.
+   * Adjusts x-coordinates by dividing by 3 to account for cubic tessellation.
+   * @param a - First cell
+   * @param b - Second cell
+   * @returns Manhattan distance adapted for cubic geometry
+   */
   public override manhattanDistance(a: Cell, b: Cell): number {
     return super.manhattanDistance({ ...a, x: a.x / 3 }, { ...b, x: b.x / 3 });
   }
 
+  /**
+   * Calculates coordinate offsets for different cell kinds in cubic tessellation.
+   * Generates complex geometry with diagonal walls and multiple connection points.
+   * @param kind - Cell kind (0-5) determining offset pattern
+   * @returns Record containing named coordinate offsets for cell geometry
+   */
   protected offsets(kind: Kind): Record<string, number> {
     const c = this.cellSize;
     const v = this.voidSize;
@@ -191,6 +239,12 @@ export class CubicMaze extends Maze {
     }
   }
 
+  /**
+   * Erases a cell by filling it with void color using cubic geometry.
+   * Handles different polygon shapes based on cell kind (0-5).
+   * @param cell - Cell to erase
+   * @param color - Color to fill with (defaults to void color)
+   */
   public eraseCell(cell: Cell, color = this.color.void): void {
     if (this.drawing) {
       switch (this.cellKind(cell)) {
@@ -248,6 +302,12 @@ export class CubicMaze extends Maze {
     }
   }
 
+  /**
+   * Draws the floor/interior of a cell using cubic tessellation geometry.
+   * Renders different polygon shapes based on cell kind (0-5).
+   * @param cell - Cell to draw floor for
+   * @param color - Color to fill with (defaults to cell color)
+   */
   public drawFloor(cell: Cell, color = this.color.cell): void {
     if (this.drawing) {
       switch (this.cellKind(cell)) {
@@ -304,6 +364,13 @@ export class CubicMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a wall segment for a cell in the specified direction.
+   * Handles complex cubic geometry with diagonal walls and varied shapes.
+   * @param cell - Cell to draw wall for
+   * @param direction - Direction of wall to draw (a-h for 8 directions)
+   * @param color - Color to draw wall with (defaults to wall color)
+   */
   public drawWall(cell: Cell, direction: Direction, color = this.color.wall): void {
     if (this.drawing) {
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
@@ -485,6 +552,13 @@ export class CubicMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a pillar (corner post) at wall intersections in cubic geometry.
+   * Renders small polygonal posts at junctions based on pillar type.
+   * @param cell - Cell containing the pillar
+   * @param pillar - Pillar type indicating which corner intersection
+   * @param color - Color to draw pillar with (defaults to wall color)
+   */
   public drawPillar(cell: Cell, pillar: Pillar, color = this.color.wall): void {
     if (this.drawing) {
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
@@ -664,6 +738,14 @@ export class CubicMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a passage opening by rendering appropriate wall and cell sections.
+   * Creates openings in walls while maintaining structural appearance.
+   * @param cell - Cell to draw passage for
+   * @param direction - Direction of passage opening (a-h for 8 directions)
+   * @param wallColor - Color for wall sections (defaults to wall color)
+   * @param cellColor - Color for cell sections (defaults to cell color)
+   */
   public drawPassage(
     cell: Cell,
     direction: Direction,
@@ -1072,6 +1154,12 @@ export class CubicMaze extends Maze {
     }
   }
 
+  /**
+   * Draws an X mark across a cell to indicate it's blocked or marked.
+   * Renders crossing diagonal lines within the cell boundaries.
+   * @param cell - Cell to draw X mark in
+   * @param color - Color to draw X with (defaults to blocked color)
+   */
   public drawX(cell: Cell, color = this.color.blocked): void {
     if (this.drawing) {
       switch (this.cellKind(cell)) {
@@ -1107,6 +1195,12 @@ export class CubicMaze extends Maze {
     }
   }
 
+  /**
+   * Calculates the bounding rectangle for a cell's drawing area.
+   * Determines the smallest rectangle that contains the cell's geometry.
+   * @param cell - Cell to calculate bounding box for
+   * @returns Rectangle containing the cell's drawing bounds
+   */
   protected drawingBox(cell: Cell): Rect {
     switch (this.cellKind(cell)) {
       case 0:

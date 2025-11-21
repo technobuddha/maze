@@ -1,42 +1,81 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-conversion */
 import { type Matrix } from '../matrix.ts';
 
-type Keys = 'bridge' | 'opposite' | 'move' | 'rightTurn' | 'leftTurn' | 'straight';
+/**
+ * Keys that define the variable parts of matrix configurations.
+ * These parts change between different octagon maze variants.
+ *
+ * @internal
+ */
+export type Keys = 'bridge' | 'opposite' | 'move' | 'rightTurn' | 'leftTurn' | 'straight';
 
+/**
+ * The main matrix configuration that remains constant across octagon maze variants.
+ * Contains directions, pillars, walls, preferences, and angles.
+ *
+ * @group Geometry
+ * @category Mazes
+ */
 export type MatrixMain = Omit<Matrix, Keys>;
+
+/**
+ * The variable part of matrix configuration that differs between octagon maze variants.
+ * Contains bridge connections, opposites, movement patterns, and turn sequences.
+ *
+ * @group Geometry
+ * @category Mazes
+ */
 export type MatrixPart = Pick<Matrix, Keys>;
 
-export const matrix: MatrixMain = {
+/**
+ * Base matrix configuration for octagon maze implementations.
+ *
+ * Defines the geometric and topological properties common to all octagon maze variants.
+ * This includes a 16-direction system with three cell kinds (0=octagon, 1=diamond, 2=square)
+ * that can be combined in different ways to create various tessellation patterns.
+ *
+ * @group Geometry
+ * @category Mazes
+ */
+export const octagonMatrix: MatrixMain = {
+  /**
+   * All sixteen possible directions in the octagon maze system.
+   * Includes 8 directions for octagonal cells (a-h), 4 for diamond cells (i-l),
+   * and 4 for square cells (m-p).
+   */
+  // prettier-ignore
   directions: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p'],
-  pillars: [
-    'ab',
-    'bc',
-    'cd',
-    'de',
-    'ef',
-    'fg',
-    'gh',
-    'ha',
-    'ij',
-    'jk',
-    'kl',
-    'li',
-    'mn',
-    'no',
-    'op',
-    'pm',
-  ],
+  /**
+   * Pillar identifiers for corner decorations between adjacent directions.
+   * Organized by cell type: octagon pillars (ab-ha), diamond pillars (ij-li),
+   * and square pillars (mn-pm).
+   */
+  // prettier-ignore
+  pillars: [ 'ab', 'bc', 'cd', 'de', 'ef', 'fg', 'gh', 'ha', 'ij', 'jk', 'kl', 'li', 'mn', 'no', 'op', 'pm' ],
+  /**
+   * Default wall configuration for each cell kind.
+   * Kind 0 (octagon): 8 walls, Kind 1 (diamond): 4 walls, Kind 2 (square): 4 walls.
+   */
   wall: {
     0: { a: true, b: true, c: true, d: true, e: true, f: true, g: true, h: true },
     1: { i: true, j: true, k: true, l: true },
     2: { m: true, n: true, o: true, p: true },
   },
 
+  /**
+   * Preferred directions for each cell kind during maze generation algorithms.
+   * Typically favors directions that create better visual flow.
+   */
   preferred: {
     0: ['c', 'd', 'e'],
     1: ['j'],
     2: ['n', 'o'],
   },
+  /**
+   * Angle mappings for each direction in degrees.
+   * Used for rendering and geometric calculations.
+   * Angles are measured clockwise from the positive x-axis.
+   */
   angle: {
     a: 270,
     b: 315,
@@ -57,8 +96,25 @@ export const matrix: MatrixMain = {
   },
 };
 
+/**
+ * Matrix configuration for octagon-diamond tessellation patterns.
+ *
+ * Defines the variable matrix properties for mazes that combine octagonal cells (kind 0)
+ * with diamond-shaped cells (kind 1). The diamond cells are positioned at the intersections
+ * between octagonal cells, creating a more complex but visually appealing pattern.
+ *
+ * @group Geometry
+ * @category Mazes
+ */
 export const matrixDiamond: MatrixPart = {
+  /**
+   * Bridge configuration for connecting cells through tunnels in diamond patterns.
+   */
   bridge: {
+    /**
+     * Mapping of directions to their connected counterparts for bridge creation.
+     * Octagonal directions connect to their opposites, diamond directions connect diagonally.
+     */
     connect: {
       a: 'e',
       b: 'f',
@@ -73,6 +129,10 @@ export const matrixDiamond: MatrixPart = {
       k: 'i',
       l: 'j',
     },
+    /**
+     * Layout definitions showing path and rear directions for bridge construction.
+     * Octagonal cells (0) support 8 bridge orientations, diamond cells (1) support 4.
+     */
     layouts: {
       0: [
         { path: ['a'], rear: ['e'] },
@@ -92,7 +152,13 @@ export const matrixDiamond: MatrixPart = {
       ],
     },
   },
+  /**
+   * Mapping of directions to their opposite counterparts.
+   */
   opposite: {
+    /**
+     * Maps lowercase directions to their uppercase opposites.
+     */
     direction: {
       a: 'E',
       b: 'K',
@@ -107,6 +173,9 @@ export const matrixDiamond: MatrixPart = {
       k: 'B',
       l: 'D',
     },
+    /**
+     * Maps uppercase facings to their lowercase opposite directions.
+     */
     facing: {
       A: 'e',
       B: 'k',
@@ -122,6 +191,10 @@ export const matrixDiamond: MatrixPart = {
       L: 'd',
     },
   },
+  /**
+   * Coordinate offsets for movement in each direction by cell kind.
+   * Octagonal cells (0) use standard 8-direction movement, diamond cells (1) use 4-direction diagonal movement.
+   */
   move: {
     0: {
       a: { x: +0, y: -1 },
@@ -140,6 +213,10 @@ export const matrixDiamond: MatrixPart = {
       l: { x: -1, y: +0 },
     },
   },
+  /**
+   * Sequences of directions when turning right from each facing direction.
+   * Used for navigation and pathfinding algorithms in octagon-diamond tessellation.
+   */
   rightTurn: {
     A: ['d', 'c', 'b', 'a', 'h', 'g', 'f', 'e'],
     B: ['j', 'i', 'l', 'k'],
@@ -154,6 +231,10 @@ export const matrixDiamond: MatrixPart = {
     K: ['a', 'h', 'g', 'f', 'e', 'd', 'c', 'b'],
     L: ['c', 'b', 'a', 'h', 'g', 'f', 'e', 'd'],
   },
+  /**
+   * Sequences of directions when turning left from each facing direction.
+   * Used for navigation and pathfinding algorithms in octagon-diamond tessellation.
+   */
   leftTurn: {
     A: ['f', 'g', 'h', 'a', 'b', 'c', 'd', 'e'],
     B: ['l', 'i', 'j', 'k'],
@@ -168,6 +249,10 @@ export const matrixDiamond: MatrixPart = {
     K: ['c', 'd', 'e', 'f', 'g', 'h', 'a', 'b'],
     L: ['e', 'f', 'g', 'h', 'a', 'b', 'c', 'd'],
   },
+  /**
+   * Direction sequences for straight-line movement from each facing direction.
+   * Includes the straight direction and alternative paths for octagon-diamond geometry.
+   */
   straight: {
     A: ['a', 'hb', 'cg', 'df', 'e'],
     B: ['i', 'lj', 'k'],
@@ -184,8 +269,25 @@ export const matrixDiamond: MatrixPart = {
   },
 };
 
+/**
+ * Matrix configuration for octagon-square tessellation patterns.
+ *
+ * Defines the variable matrix properties for mazes that combine octagonal cells (kind 0)
+ * with square cells (kind 2). The square cells are positioned between octagonal cells,
+ * creating a different tessellation pattern from the diamond variant.
+ *
+ * @group Geometry
+ * @category Mazes
+ */
 export const matrixSquare: MatrixPart = {
+  /**
+   * Bridge configuration for connecting cells through tunnels in square patterns.
+   */
   bridge: {
+    /**
+     * Mapping of directions to their connected counterparts for bridge creation.
+     * Both octagonal and square directions connect to their direct opposites.
+     */
     connect: {
       a: 'e',
       b: 'f',
@@ -200,6 +302,10 @@ export const matrixSquare: MatrixPart = {
       o: 'm',
       p: 'n',
     },
+    /**
+     * Layout definitions showing path and rear directions for bridge construction.
+     * Octagonal cells (0) support 8 bridge orientations, square cells (2) support 4.
+     */
     layouts: {
       0: [
         { path: ['a', 'm'], rear: ['e', 'o'] },
@@ -219,7 +325,13 @@ export const matrixSquare: MatrixPart = {
       ],
     },
   },
+  /**
+   * Mapping of directions to their opposite counterparts.
+   */
   opposite: {
+    /**
+     * Maps lowercase directions to their uppercase opposites.
+     */
     direction: {
       a: 'O',
       b: 'F',
@@ -234,6 +346,9 @@ export const matrixSquare: MatrixPart = {
       o: 'A',
       p: 'C',
     },
+    /**
+     * Maps uppercase facings to their lowercase opposite directions.
+     */
     facing: {
       A: 'o',
       B: 'f',
@@ -249,6 +364,10 @@ export const matrixSquare: MatrixPart = {
       P: 'c',
     },
   },
+  /**
+   * Coordinate offsets for movement in each direction by cell kind.
+   * Octagonal cells (0) use standard 8-direction movement, square cells (2) use 4-direction cardinal movement.
+   */
   move: {
     0: {
       a: { x: +0, y: -1 },
@@ -267,6 +386,10 @@ export const matrixSquare: MatrixPart = {
       p: { x: -1, y: +0 },
     },
   },
+  /**
+   * Sequences of directions when turning right from each facing direction.
+   * Used for navigation and pathfinding algorithms in octagon-square tessellation.
+   */
   rightTurn: {
     A: ['n', 'm', 'p', 'o'],
     B: ['e', 'd', 'c', 'b', 'a', 'h', 'g', 'f'],
@@ -281,6 +404,10 @@ export const matrixSquare: MatrixPart = {
     O: ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'],
     P: ['b', 'a', 'h', 'g', 'f', 'e', 'd', 'c'],
   },
+  /**
+   * Sequences of directions when turning left from each facing direction.
+   * Used for navigation and pathfinding algorithms in octagon-square tessellation.
+   */
   leftTurn: {
     A: ['p', 'm', 'n', 'o'],
     B: ['g', 'h', 'a', 'b', 'c', 'd', 'e', 'f'],
@@ -295,6 +422,10 @@ export const matrixSquare: MatrixPart = {
     O: ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'a'],
     P: ['d', 'e', 'f', 'g', 'h', 'a', 'b', 'c'],
   },
+  /**
+   * Direction sequences for straight-line movement from each facing direction.
+   * Includes the straight direction and alternative paths for octagon-square geometry.
+   */
   straight: {
     A: ['m', 'pn', 'o'],
     B: ['b', 'ac', 'dh', 'ge', 'f'],

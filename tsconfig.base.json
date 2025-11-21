@@ -10,7 +10,7 @@
     "jsxImportSource": "react",
     "useDefineForClassFields": true,
     "moduleDetection": "force",
-    "module": "preserve",
+    "module": "esnext",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "rewriteRelativeImportExtensions": true,

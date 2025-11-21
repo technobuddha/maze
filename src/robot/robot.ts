@@ -6,9 +6,9 @@ import {
   type CellTunnel,
   type Maze,
   type Move,
-} from '../../geometry/index.ts';
-import { darken } from '../../library/index.ts';
-import { type MessageOptions } from '../../message-controller/index.ts';
+} from '../geometry/index.ts';
+import { darken } from '../library/index.ts';
+import { type MessageOptions } from '../message-controller/index.ts';
 
 export type Program =
   | 'random'

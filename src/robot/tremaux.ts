@@ -1,24 +1,69 @@
 import { create2dArray } from '@technobuddha/library';
 
-import { type Cell, type Direction, type Move } from '../../geometry/index.ts';
-import { darken } from '../../library/index.ts';
+import { type Cell, type Direction, type Move } from '../geometry/index.ts';
+import { darken } from '../library/index.ts';
 
 import { Robot, type RobotProperties } from './robot.ts';
 import { RobotError } from './robot-error.ts';
 
+/**
+ * Configuration properties for the Trémaux algorithm robot.
+ *
+ * @group Robot
+ * @category Properties
+ */
 export type TremauxRobotProperties = RobotProperties & {
+  /** Whether to visually mark passages with traversal indicators */
   showMarks?: boolean;
+  /** Color for single-traversal path markings */
   pathColor?: string;
+  /** Color for blocked/double-traversal path markings */
   blockedColor?: string;
 };
 
+/**
+ * Trémaux algorithm maze-solving robot that marks passages to avoid loops.
+ *
+ * The Trémaux algorithm is a systematic method for solving mazes that guarantees
+ * a solution by marking passages as they are traversed. It uses a marking system
+ * where passages can be marked 0 (unmarked), 1 (traversed once), or 2 (blocked/traversed twice).
+ *
+ * Algorithm rules:
+ * 1. **Unmarked passages**: If only unmarked passages exist, choose any unmarked path
+ * 2. **All marked once**: If all forward passages are marked once, backtrack through entrance
+ * 3. **Mixed markings**: Choose the passage with the fewest marks (0 preferred, then 1)
+ * 4. **Dead ends**: Mark passages twice to indicate they lead to dead ends
+ *
+ * Key behaviors:
+ * - Systematic passage marking prevents infinite loops
+ * - Backtracking when all forward paths are explored
+ * - Visual indicators show traversal history when showMarks is enabled
+ * - Guaranteed to find a solution in finite time for any solvable maze
+ * - Uses star avatar to distinguish from other robot types
+ *
+ * @group Robot
+ * @category Algorithms
+ */
 export class TremauxRobot extends Robot {
+  /** Algorithm identifier for this robot type */
   public readonly algorithm = 'trémaux';
+  /** Whether to display visual passage markings */
   protected readonly showMarks: boolean;
+  /** Color for single-traversal markings */
   protected readonly markedColor: string;
+  /** Color for blocked/double-traversal markings */
   protected readonly blockedColor: string;
+  /** 2D array tracking passage markings for each cell and direction */
   protected readonly marks: Record<Direction, number>[][];
 
+  /**
+   * Creates a new Trémaux algorithm robot with specified configuration.
+   *
+   * Initializes the marking system with zero marks for all valid passages
+   * and sets up visual colors for different marking states.
+   *
+   * @param props - Configuration including maze, visual options, and colors
+   */
   public constructor({
     maze,
     program = 'random',
@@ -44,6 +89,16 @@ export class TremauxRobot extends Robot {
     this.avatar = (cell, color) => this.maze.drawStar(cell, color);
   }
 
+  /**
+   * Draws a visual mark on a passage to indicate traversal count.
+   *
+   * Renders passage markings when showMarks is enabled, using different
+   * colors to distinguish between single traversals (marked once) and
+   * blocked passages (marked twice).
+   *
+   * @param cell - The cell containing the passage
+   * @param direction - The direction of the passage to mark
+   */
   private drawMark(cell: Cell, direction: Direction): void {
     if (this.showMarks) {
       const m = this.marks[cell.x][cell.y][direction];
@@ -51,6 +106,15 @@ export class TremauxRobot extends Robot {
     }
   }
 
+  /**
+   * Executes a move with proper passage marking and visual updates.
+   *
+   * Increments the mark count for both the departure and arrival passages
+   * (marking both sides of the traversal), updates the robot's position,
+   * and refreshes visual markings for affected cells.
+   *
+   * @param next - The move to execute with target position and direction
+   */
   protected move(next: Move): void {
     this.marks[this.location.x][this.location.y][next.direction] = Math.min(
       this.marks[this.location.x][this.location.y][next.direction] + 1,
@@ -77,6 +141,20 @@ export class TremauxRobot extends Robot {
     }
   }
 
+  /**
+   * Executes one step of the Trémaux algorithm.
+   *
+   * Analyzes available moves and current passage markings to determine
+   * the next action according to Trémaux rules:
+   *
+   * 1. If unmarked passages exist, select one using the decision program
+   * 2. If all forward passages are marked once and backtrack is possible, backtrack
+   * 3. Otherwise, select the passage with the fewest marks
+   *
+   * Throws an error if no valid moves can be determined.
+   *
+   * @throws {@link RobotError} When unable to find a valid move or make a decision
+   */
   public execute(): void {
     const moves = this.maze.moves(this.location, { wall: false });
     if (moves.length === 0) {

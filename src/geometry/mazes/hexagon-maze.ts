@@ -8,33 +8,52 @@ import {
 import { type Cell, type Direction, type Kind, type Pillar } from '../geometry.ts';
 import { type DrawingSizes, Maze, type MazeProperties } from '../maze.ts';
 
-import { matrix } from './hexagon-matrix.ts';
+import { hexagonMatrix } from './hexagon-matrix.ts';
 
 const SIN30 = Math.sin(Math.PI / 6);
 const COS30 = Math.cos(Math.PI / 6);
 const TAN30 = Math.tan(Math.PI / 6);
-// const COT30 = 1 / TAN30;
 const SEC30 = 1 / COS30;
-// const CSC30 = 1 / SIN30;
 const SIN60 = Math.sin(Math.PI / 3);
-// const COS60 = Math.cos(Math.PI / 3);
-// const TAN60 = Math.tan(Math.PI / 3);
-// const COT60 = 1 / TAN60;
-// const SEC60 = 1 / COS60;
-// const CSC60 = 1 / SIN60;
 
+/**
+ * Properties for configuring a HexagonMaze instance.
+ *
+ * @group Geometry
+ * @category Mazes
+ */
 export type HexagonMazeProperties = MazeProperties;
 
+/**
+ * A maze implementation that renders cells as hexagonal shapes connected by six-directional pathways.
+ *
+ * This maze type creates a honeycomb-like structure where each cell is represented by a hexagon,
+ * and connections between cells follow six directions (a, b, c, d, e, f) corresponding to the
+ * six sides of a hexagon. The maze supports alternating row patterns for proper tessellation.
+ *
+ * @group Geometry
+ * @category Mazes
+ */
 export class HexagonMaze extends Maze {
+  /**
+   * Creates a new HexagonMaze instance.
+   *
+   * @param props - Configuration properties for the maze
+   */
   public constructor({
     cellSize = 36,
     wallSize = 2,
     voidSize = 1,
     ...props
   }: HexagonMazeProperties) {
-    super({ cellSize, wallSize, voidSize, ...props }, matrix);
+    super({ cellSize, wallSize, voidSize, ...props }, hexagonMatrix);
   }
 
+  /**
+   * Calculates the drawing dimensions for the hexagonal maze layout.
+   *
+   * @returns The sizing configuration for rendering the maze with hexagonal tessellation
+   */
   protected drawingSize(): DrawingSizes {
     return {
       groupWidth: this.cellSize * 1.5,
@@ -45,10 +64,28 @@ export class HexagonMaze extends Maze {
     };
   }
 
+  /**
+   * Determines the kind/type of a cell based on its column position.
+   *
+   * Hexagonal mazes use alternating patterns where even and odd columns
+   * have different vertical offsets to create proper tessellation.
+   *
+   * @param cell - The cell to analyze
+   * @returns 0 for even columns, 1 for odd columns
+   */
   public cellKind(cell: Cell): number {
     return modulo(cell.x, 2);
   }
 
+  /**
+   * Calculates the origin point for a hexagonal cell in the drawing coordinate system.
+   *
+   * Odd columns are vertically offset by half a row height to create
+   * the characteristic hexagonal tessellation pattern.
+   *
+   * @param cell - The cell to locate
+   * @returns The top-left corner coordinates of the cell's bounding box
+   */
   protected cellOrigin(cell: Cell): Cartesian {
     return {
       x: cell.x * this.cellSize * 0.75,
@@ -58,6 +95,16 @@ export class HexagonMaze extends Maze {
     };
   }
 
+  /**
+   * Calculates offset coordinates for drawing hexagonal maze elements within a cell.
+   *
+   * This method computes a comprehensive set of x and y coordinates that define
+   * the positions of walls, passages, and intersections within a hexagonal cell
+   * using trigonometric constants for precise hexagonal geometry.
+   *
+   * @param _kind - The cell kind (unused in current implementation)
+   * @returns A record containing named coordinate offsets for hexagonal geometry
+   */
   protected override offsets(_kind: Kind): Record<string, number> {
     const v = this.voidSize;
     const w = this.wallSize;
@@ -121,6 +168,12 @@ export class HexagonMaze extends Maze {
     };
   }
 
+  /**
+   * Erases a hexagonal cell by filling its area with the void color.
+   *
+   * @param cell - The cell to erase
+   * @param color - The color to fill with (defaults to void color)
+   */
   public eraseCell(cell: Cell, color = this.color.void): void {
     if (this.drawing) {
       const { x0, x9, xe, xn, y0, y9, yi } = this.cellOffsets(cell);
@@ -139,6 +192,12 @@ export class HexagonMaze extends Maze {
     }
   }
 
+  /**
+   * Draws the floor area of a hexagonal cell.
+   *
+   * @param cell - The cell to draw the floor for
+   * @param color - The color to use for the floor
+   */
   public drawFloor(cell: Cell, color = this.color.cell): void {
     if (this.drawing) {
       const { x2, xa, xd, xl, y2, y9, yg } = this.cellOffsets(cell);
@@ -157,6 +216,16 @@ export class HexagonMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a wall on one of the six sides of a hexagonal cell.
+   *
+   * Walls are drawn as polygonal shapes that follow the hexagonal
+   * geometry and align with the six directional sides.
+   *
+   * @param cell - The cell containing the wall
+   * @param direction - The direction of the wall (a, b, c, d, e, f)
+   * @param color - The color to use for the wall
+   */
   public drawWall(cell: Cell, direction: Direction, color = this.color.wall): void {
     if (this.drawing) {
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
@@ -231,6 +300,17 @@ export class HexagonMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a passage (opening) in a hexagonal wall with appropriate wall and cell coloring.
+   *
+   * This method renders partial walls on either side of the passage opening,
+   * maintaining the hexagonal geometry while creating visual continuity.
+   *
+   * @param cell - The cell containing the passage
+   * @param direction - The direction of the passage
+   * @param wallColor - The color to use for wall segments
+   * @param cellColor - The color to use for the passage opening
+   */
   public drawPassage(
     cell: Cell,
     direction: Direction,
@@ -387,6 +467,16 @@ export class HexagonMaze extends Maze {
     }
   }
 
+  /**
+   * Draws a pillar (corner decoration) at the intersection between two adjacent directions.
+   *
+   * Pillars provide visual continuity at hexagonal vertices and are drawn as
+   * triangular or quadrilateral shapes depending on the specific intersection.
+   *
+   * @param cell - The cell containing the pillar
+   * @param pillar - The pillar type/position identifier (ab, bc, cd, de, ef, fa)
+   * @param color - The color to use for the pillar
+   */
   public override drawPillar(cell: Cell, pillar: Pillar, color = this.color.wall): void {
     if (this.drawing) {
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
@@ -480,6 +570,15 @@ export class HexagonMaze extends Maze {
     }
   }
 
+  /**
+   * Draws an X pattern over a hexagonal cell to indicate it's blocked or marked.
+   *
+   * The X pattern is adapted for hexagonal geometry, using three intersecting
+   * lines that align with the hexagonal structure.
+   *
+   * @param cell - The cell to mark with an X
+   * @param color - The color to use for the X pattern
+   */
   public override drawX(cell: Cell, color = this.color.blocked): void {
     if (this.drawing) {
       const { x5, xb, xc, xi, y5, y9, yd } = this.cellOffsets(cell);
@@ -489,6 +588,15 @@ export class HexagonMaze extends Maze {
     }
   }
 
+  /**
+   * Calculates the optimal rectangular drawing area within a hexagonal cell.
+   *
+   * Uses the largest inscribed rectangle algorithm to find the maximum
+   * rectangular area that fits entirely within the hexagonal cell boundaries.
+   *
+   * @param cell - The cell to calculate the drawing box for
+   * @returns The rectangular bounds for drawing within the hexagonal cell
+   */
   protected drawingBox(cell: Cell): Rect {
     // Use the larger hexagon coordinates that include wall areas
     // Based on the drawFloor method coordinates for maximum usable space

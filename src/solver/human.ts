@@ -11,32 +11,96 @@ import {
 
 import { MazeSolver, type MazeSolverProperties } from './maze-solver.ts';
 
-type Options = {
+/**
+ * Configuration options for human solver behavior.
+ *
+ * @group Solver
+ * @category Types
+ */
+export type Options = {
+  /** Whether to follow single paths to their final destination automatically */
   finalDestination: boolean;
+  /** Whether to mark visited cells with visual indicators */
   markVisited: boolean;
+  /** Whether to mark and block dead-end paths */
   markDeadEnds: boolean;
+  /** Whether to hide the reverse direction option in navigation choices */
   hideReverse: boolean;
 };
 
-type CellPath = Cell & {
+/**
+ * Extended cell information for human solver pathfinding.
+ *
+ * @group Solver
+ * @category Types
+ */
+export type CellPath = Cell & {
+  /** Direction taken to reach this destination */
   readonly direction: Direction;
+  /** Final facing orientation at the destination */
   readonly facing: Facing;
+  /** Original branch direction from the starting point */
   readonly branch: Direction;
+  /** Complete path with tunnel information for rendering */
   readonly path: CellTunnel[];
+  /** Movement history to reach this destination */
   readonly history: CellFacing[];
 };
+
+/**
+ * Configuration properties for the Human maze solver.
+ *
+ * @group Solver
+ * @category Properties
+ */
 export type HumanProperties = MazeSolverProperties & {
+  /** Optional behavior configuration settings */
   readonly options?: Partial<Options>;
 };
 
+/**
+ * Interactive human-controlled maze solver with keyboard navigation.
+ *
+ * This solver provides manual navigation through the maze with intelligent
+ * destination finding and visual feedback. The solver analyzes possible moves
+ * and presents choices to the user, automatically following single paths when
+ * configured to do so.
+ *
+ * Key features:
+ * - Keyboard-controlled navigation (Arrow keys, Space, Escape, x)
+ * - Visual highlighting of possible destinations
+ * - Automatic dead-end detection and marking
+ * - Visited cell tracking with visual indicators
+ * - Auto-solve mode toggle for computer assistance
+ * - Backtracking support
+ *
+ * Controls:
+ * - Arrow Up/Space: Move to selected destination
+ * - Arrow Left/Right: Change destination selection
+ * - Arrow Down: Backtrack to previous position
+ * - Escape: Toggle auto-solve mode
+ * - x: Exit solver
+ *
+ * @group Solver
+ * @category Algorithms
+ */
 export class Human extends MazeSolver {
+  /** Current behavior configuration options */
   public options: Options;
 
+  /** 2D grid tracking which cells have been visited */
   protected readonly visited: boolean[][];
+  /** 2D grid tracking which cells are marked as dead ends */
   protected readonly deadEnd: boolean[][];
 
+  /** Event target for keyboard event handling */
   private readonly eventTarget = new EventTarget();
 
+  /**
+   * Creates a new Human solver with interactive controls and behavior options.
+   *
+   * @param props - Configuration including behavior options and maze settings
+   */
   public constructor({ options, ...props }: HumanProperties) {
     super(props);
 
@@ -54,8 +118,14 @@ export class Human extends MazeSolver {
   }
 
   //#region Keyboard Handler
+  /** Keyboard event handler function for capturing user input */
   private readonly keyHandler: (event: KeyboardEvent) => void;
 
+  /**
+   * Initializes keyboard event handling for user input capture.
+   *
+   * @returns The keyboard event handler function
+   */
   private initializeKeyboardHandler(): (event: KeyboardEvent) => void {
     // eslint-disable-next-line unicorn/consistent-function-scoping
     const handler = (event: KeyboardEvent): void => {
@@ -65,6 +135,12 @@ export class Human extends MazeSolver {
     return handler;
   }
 
+  /**
+   * Captures the next keyboard input from the user.
+   *
+   * @returns Promise that resolves to the pressed key string
+   * @throws When key capture is aborted
+   */
   private async captureKey(): Promise<string> {
     const ac = new AbortController();
     this.addTrash(ac);
@@ -86,11 +162,28 @@ export class Human extends MazeSolver {
     });
   }
 
+  /**
+   * Programmatically sends a key event to the solver.
+   *
+   * Useful for automated testing or scripted navigation.
+   *
+   * @param key - The key string to simulate
+   */
   public sendKey(key: string): void {
     this.eventTarget.dispatchEvent(new CustomEvent('keydown', { detail: key }));
   }
   //#endregion
 
+  /**
+   * Analyzes possible destinations from the current cell position.
+   *
+   * Explores each direction to find meaningful destinations, following
+   * single paths to their endpoints when finalDestination is enabled.
+   * Automatically marks dead ends when markDeadEnds is enabled.
+   *
+   * @param cell - Current position and facing direction
+   * @returns Array of possible destination cells with path information
+   */
   private destinations(cell: CellFacing): CellPath[] {
     type Destination = Cell & {
       direction: Direction;
@@ -164,6 +257,14 @@ export class Human extends MazeSolver {
     return cellPaths;
   }
 
+  /**
+   * Restores the visual appearance of a cell based on its current state.
+   *
+   * Updates cell rendering to show dead ends (X marks), visited cells,
+   * or normal cell appearance depending on the cell's status.
+   *
+   * @param cell - The cell to restore visually
+   */
   private restoreCell(cell: Cell): void {
     this.maze.drawCell(cell);
     if (this.deadEnd[cell.x][cell.y]) {
@@ -174,6 +275,18 @@ export class Human extends MazeSolver {
     }
   }
 
+  /**
+   * Interactively solves the maze with human keyboard input.
+   *
+   * Presents navigation choices to the user with visual highlighting
+   * and processes keyboard commands for movement, backtracking, and
+   * mode switching. Supports both manual navigation and auto-solve modes.
+   *
+   * The solver continues until the user reaches the exit or manually exits.
+   *
+   * @param options - Optional entrance and exit override points
+   * @yields After each user interaction for visual updates
+   */
   public async *solve({
     entrance = this.maze.entrance,
     exit = this.maze.exit,
@@ -313,6 +426,12 @@ export class Human extends MazeSolver {
     this.maze.solution = this.maze.makePath(this.maze.flatten(history));
   }
 
+  /**
+   * Cleans up resources and removes event listeners.
+   *
+   * Removes the keyboard event listener to prevent memory leaks
+   * when the solver is disposed.
+   */
   public override dispose(): void {
     super.dispose();
     document.removeEventListener('keydown', this.keyHandler);

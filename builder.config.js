@@ -28,6 +28,26 @@ const config = {
         command: 'tsc --build ./src',
       },
     ]
+  },
+  publish: {
+    steps: [
+      {
+        name: 'Clean',
+        command: 'rm -rf ./dist',
+      },
+      {
+        name: 'Maze',
+        command: 'tsc --build ./src',
+      },
+      {
+        name: 'Version',
+        command: 'yarn version patch',
+      },
+      {
+        name: 'Publish',
+        command: 'yarn npm publish --access public',
+      }
+    ]
   }
 };
 

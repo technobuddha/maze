@@ -20,7 +20,7 @@ import { logger } from '../library/logger.ts';
  * - 'bridge-builder': Constructs multi-level bridges across the maze
  *
  * @group Generator
- * @category Types
+ * @category Maze Generator
  */
 export type Strategy = 'random' | 'right-turn' | 'left-turn' | 'straight' | 'bridge-builder';
 
@@ -30,7 +30,7 @@ export type Strategy = 'random' | 'right-turn' | 'left-turn' | 'straight' | 'bri
  * Each player maintains independent state for multi-agent generation algorithms.
  *
  * @group Generator
- * @category Types
+ * @category Maze Generator
  * @internal
  */
 type PlayerState = {
@@ -53,7 +53,7 @@ type PlayerState = {
  * Configuration properties for maze generator instances.
  *
  * @group Generator
- * @category Types
+ * @category Maze Generator
  */
 export type MazeGeneratorProperties = RandomProperties & {
   /** The maze instance to generate paths within */
@@ -94,7 +94,7 @@ export type MazeGeneratorProperties = RandomProperties & {
  * algorithmic approach for maze creation.
  *
  * @group Generator
- * @category Core
+ * @category Maze Generator
  */
 export abstract class MazeGenerator extends Random {
   /** 2D array tracking which player has visited each cell (false = unvisited) */

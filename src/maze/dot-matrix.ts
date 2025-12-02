@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-conversion */
-import { type Matrix } from '../matrix.ts';
+import { type Matrix } from '../geometry/matrix.ts';
 
 /**
  * Matrix configuration for the dot maze implementation.
@@ -8,8 +8,8 @@ import { type Matrix } from '../matrix.ts';
  * where cells are connected via diagonal pathways in addition to cardinal directions.
  * This matrix supports complex intersection handling and diagonal movement patterns.
  *
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Dot
  */
 export const dotMatrix: Matrix = {
   /**

@@ -7,8 +7,8 @@ import {
   toRadians,
 } from '@technobuddha/library';
 
-import { type Cell, type Direction, type Kind, type Pillar } from '../geometry.ts';
-import { type DrawingSizes, Maze, type MazeProperties } from '../maze.ts';
+import { type Cell, type Direction, type Kind, type Pillar } from '../geometry/geometry.ts';
+import { type DrawingSizes, Maze, type MazeProperties } from '../geometry/maze.ts';
 
 import { cubicMatrix } from './cubic-matrix.ts';
 
@@ -18,8 +18,8 @@ const COS15 = Math.cos(toRadians(15));
 /**
  * Properties for configuring a cubic maze.
  * Inherits all standard maze properties for cubic tessellation geometry.
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Cubic
  */
 export type CubicMazeProperties = MazeProperties;
 
@@ -28,8 +28,8 @@ export type CubicMazeProperties = MazeProperties;
  * Creates a maze where each cell is a square with possible diagonal connections,
  * resulting in a more complex path structure than standard square mazes.
  * Uses 15-degree angle offsets for visual presentation of cubic geometry.
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Cubic
  */
 export class CubicMaze extends Maze {
   /**

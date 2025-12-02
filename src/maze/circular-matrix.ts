@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-conversion */
-import { type Matrix } from '../matrix.ts';
+import { type Matrix } from '../geometry/matrix.ts';
 
 /**
  * Matrix definition for circular maze geometry.
@@ -26,8 +26,8 @@ import { type Matrix } from '../matrix.ts';
  * - g: Inner radial (180°)
  * - h: Inner radial (180°)
  *
- * @group Geometry
- * @category Constants
+ * @group Maze
+ * @category Circular
  */
 export const circularMatrix: Matrix = {
   /** Bridge configuration for multi-level circular maze connections */

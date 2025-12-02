@@ -11,7 +11,7 @@
  * - 'exit': Completion and cleanup phase
  *
  * @group Runner
- * @category Types
+ * @category  Phase
  */
 export const phases = ['maze', 'generate', 'braid', 'solve', 'final', 'observe', 'exit'] as const;
 
@@ -22,6 +22,6 @@ export const phases = ['maze', 'generate', 'braid', 'solve', 'final', 'observe',
  * working with maze execution phases throughout the runner system.
  *
  * @group Runner
- * @category Types
+ * @category  Phase
  */
 export type Phase = (typeof phases)[number];

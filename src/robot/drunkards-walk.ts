@@ -5,7 +5,7 @@ import { RobotError } from './robot-error.ts';
  * Configuration properties for the Drunkard's Walk robot.
  *
  * @group Robot
- * @category Properties
+ * @category  Drunkards Walk
  */
 export type DrunkenRobotProperties = Omit<RobotProperties, 'program'>;
 
@@ -28,7 +28,7 @@ export type DrunkenRobotProperties = Omit<RobotProperties, 'program'>;
  * and demonstrates the baseline random walk behavior in maze solving.
  *
  * @group Robot
- * @category Algorithms
+ * @category  Drunkards Walk
  */
 export class DrunkenRobot extends Robot {
   /** Algorithm identifier for this robot type */

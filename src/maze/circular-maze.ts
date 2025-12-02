@@ -13,9 +13,9 @@ import {
   type Kind,
   type MoveOffset,
   type Pillar,
-} from '../geometry.ts';
-import { type DrawingSizes, Maze, type MazeProperties } from '../maze.ts';
-import { type Wall } from '../nexus.ts';
+} from '../geometry/geometry.ts';
+import { type DrawingSizes, Maze, type MazeProperties } from '../geometry/maze.ts';
+import { type Wall } from '../geometry/nexus.ts';
 
 import { circularMatrix } from './circular-matrix.ts';
 
@@ -23,8 +23,8 @@ import { circularMatrix } from './circular-matrix.ts';
  * Properties for constructing a CircularMaze instance.
  * Extends base MazeProperties with circular-specific parameters.
  *
- * @group Geometry
- * @category Types
+ * @group Maze
+ * @category Circular
  */
 export type CircularMazeProperties = MazeProperties & {
   /** Radius of the center circle in pixels (defaults to 18) */
@@ -45,8 +45,8 @@ export type CircularMazeProperties = MazeProperties & {
  * - Automatic masking of unused grid areas
  * - Configurable center radius and segmentation
  *
- * @group Geometry
- * @category Classes
+ * @group Maze
+ * @category Circular
  */
 export class CircularMaze extends Maze {
   /** Radius of the center circle in pixels */

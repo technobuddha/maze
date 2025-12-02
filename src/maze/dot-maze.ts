@@ -1,15 +1,15 @@
 import { type Cartesian, modulo, type Rect } from '@technobuddha/library';
 
-import { type Cell, type Direction, type Kind, type Pillar } from '../geometry.ts';
-import { type DrawingSizes, Maze, type MazeProperties } from '../maze.ts';
+import { type Cell, type Direction, type Kind, type Pillar } from '../geometry/geometry.ts';
+import { type DrawingSizes, Maze, type MazeProperties } from '../geometry/maze.ts';
 
 import { dotMatrix } from './dot-matrix.ts';
 
 /**
  * Properties for configuring a DotMaze instance.
  *
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Dot
  */
 export type DotMazeProperties = MazeProperties;
 
@@ -22,8 +22,8 @@ const { SQRT1_2 } = Math;
  * dot, and the connections between cells follow diagonal patterns rather than simple horizontal
  * and vertical lines. The maze supports complex intersection rendering and tunnel visualization.
  *
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Dot
  */
 export class DotMaze extends Maze {
   /**

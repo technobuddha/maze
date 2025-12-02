@@ -31,16 +31,24 @@ import { type AllOrder, MazeGeometry, type MazeGeometryProperties } from './maze
 /** Pre-calculated star shape for drawing decorative elements */
 const starShape = rotate(star(5, 0.5, 1), Math.PI / 10);
 
-/** Zone classification for maze locations */
+/**
+ * Zone classification for maze locations
+ * @group Geometry
+ * @category  Maze
+ */
 export type Zone = 'edge' | 'interior';
 
-/** String template type for specifying maze locations by order and zone */
+/**
+ * String template type for specifying maze locations by order and zone
+ * @group Geometry
+ * @category  Maze
+ */
 export type Location = `${AllOrder} ${Zone}`;
 
 /**
  * Dimensions for custom drawing size calculations
  * @group Geometry
- * @category Types
+ * @category  Maze
  */
 export type CustomDrawingSize = {
   /** The logical width in cells */
@@ -56,7 +64,7 @@ export type CustomDrawingSize = {
 /**
  * Configuration for maze drawing dimensions and layout
  * @group Geometry
- * @category Types
+ * @category  Maze
  */
 export type DrawingSizes = {
   /** Width of a cell group in pixels */
@@ -82,7 +90,7 @@ export type DrawingSizes = {
 /**
  * Methods for visualizing distances in maze rendering
  * @group Geometry
- * @category Types
+ * @category  Maze
  */
 export type ShowDistances = 'none' | 'greyscale' | 'primary' | 'color' | 'spectrum';
 
@@ -104,7 +112,7 @@ export type Loop = {
 /**
  * Configuration properties for maze construction and rendering
  * @group Geometry
- * @category Types
+ * @category  Maze
  */
 export type MazeProperties = MazeGeometryProperties & {
   /** Drawing context for rendering the maze */
@@ -146,7 +154,7 @@ export type MazeProperties = MazeGeometryProperties & {
  * their specific rendering behaviors.
  *
  * @group Geometry
- * @category Classes
+ * @category  Maze
  */
 export abstract class Maze extends MazeGeometry {
   //#region Properties
@@ -348,15 +356,24 @@ export abstract class Maze extends MazeGeometry {
 
   /**
    * Analyzes the maze structure starting from the given entrance point.
-   * Performs breadth-first search to calculate distances, detect loops, and find unreachable areas.
+   *
+   * Performs breadth-first search to calculate distances from the entrance to all reachable cells,
+   * detect loops in the maze structure, and identify unreachable areas. The analysis provides
+   * comprehensive information about maze connectivity and structural properties.
+   *
    * @param entrance - The starting point for analysis (defaults to maze entrance)
-   * @returns Analysis results including distances, unreachable cells, and detected loops
+   * @returns Analysis results
    */
   public analyze(entrance: Cell = this.entrance): {
+    /** The greatest distance from entrance to any reachable cell */
     maxDistance: number;
+    /** The cell that is farthest from the entrance */
     maxCell: Cell;
+    /** 2D array mapping each cell to its distance from entrance (Infinity for unreachable) */
     distances: number[][];
+    /** Array of cells that cannot be reached from the entrance */
     unreachable: Cell[];
+    /** Array of detected loops where cells connect back to previously visited areas */
     loops: Loop[];
   } {
     const distances = create2dArray(this.width, this.height, Infinity);
@@ -663,6 +680,16 @@ export abstract class Maze extends MazeGeometry {
     }
   }
 
+  /**
+   * Renders the complete maze solution with optional distance visualization.
+   *
+   * Displays the maze with distance-based coloring, overlays the solution path from
+   * entrance to exit, and marks the exit cell. The solution path is drawn with
+   * directional indicators showing the route to follow.
+   *
+   * @param color - Color for the solution path indicators (defaults to solution color)
+   * @param method - Distance visualization method to use (defaults to maze's showDistances setting)
+   */
   public drawSolution(color = this.color.solution, method = this.showDistances): void {
     if (this.drawing) {
       this.drawDistances(method);

@@ -8,7 +8,7 @@ import { Robot, type RobotProperties } from './robot.ts';
  * Journal entry for tracking Dijkstra's algorithm state at each cell.
  *
  * @group Robot
- * @category Types
+ * @category  Dijkstras
  */
 type Journal = {
   /** Parent cell in the shortest path tree */
@@ -23,7 +23,7 @@ type Journal = {
  * Queue entry for Dijkstra's algorithm processing.
  *
  * @group Robot
- * @category Types
+ * @category  Dijkstras
  */
 type Queue = {
   /** Cell position and facing direction */
@@ -38,7 +38,7 @@ type Queue = {
  * Configuration properties for the Dijkstra's algorithm robot.
  *
  * @group Robot
- * @category Properties
+ * @category  Dijkstras
  */
 export type DijkstrasRobotProperties = Omit<RobotProperties, 'program' | 'showPath'> & {
   /** Whether to visually mark scanned and pruned cells */
@@ -69,7 +69,7 @@ export type DijkstrasRobotProperties = Omit<RobotProperties, 'program' | 'showPa
  * ideal for scenarios where optimality is more important than speed.
  *
  * @group Robot
- * @category Algorithms
+ * @category  Dijkstras
  */
 export class DijkstrasRobot extends Robot {
   /** Algorithm identifier for this robot type */

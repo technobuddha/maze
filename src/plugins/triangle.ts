@@ -20,7 +20,7 @@ import { type Maze } from '../geometry/index.ts';
  * @param maze - The maze instance to apply the triangular shape to
  *
  * @group Plugin
- * @category Shape
+ * @category Triangle
  */
 export function trianglePlugin(maze: Maze): void {
   const a = { x: 0, y: maze.height - 1 };

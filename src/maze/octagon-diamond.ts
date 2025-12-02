@@ -1,7 +1,7 @@
 import { type Cartesian, modulo } from '@technobuddha/library';
 
-import { type Cell } from '../geometry.ts';
-import { type DrawingSizes } from '../maze.ts';
+import { type Cell } from '../geometry/geometry.ts';
+import { type DrawingSizes } from '../geometry/maze.ts';
 
 import { matrixDiamond } from './octagon-matrix.ts';
 import { OctagonMaze, type OctagonMazeProperties } from './octagon-maze.ts';
@@ -9,8 +9,8 @@ import { OctagonMaze, type OctagonMazeProperties } from './octagon-maze.ts';
 /**
  * Properties for configuring an OctagonDiamond maze instance.
  *
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Octagon
  */
 export type OctagonDiamondProperties = OctagonMazeProperties;
 
@@ -22,8 +22,8 @@ export type OctagonDiamondProperties = OctagonMazeProperties;
  * smaller diamond-shaped cells. The layout creates a more complex visual pattern
  * with two distinct cell types arranged in a checkerboard-like formation.
  *
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Octagon
  */
 export class OctagonDiamond extends OctagonMaze {
   /**

@@ -11,7 +11,7 @@ import { MazeSolver, type MazeSolverProperties } from './maze-solver.ts';
  * to prevent immediate backtracking.
  *
  * @group Solver
- * @category Types
+ * @category  Fibonaccis Rabbits
  */
 type Rabbit = {
   /** Current position and facing direction of the rabbit */
@@ -28,7 +28,7 @@ type Rabbit = {
  * Configuration properties for the Fibonacci's Rabbits maze solver.
  *
  * @group Solver
- * @category Properties
+ * @category  Fibonaccis Rabbits
  */
 export type FibonaccisRabbitsProperties = MazeSolverProperties & {
   /** Maximum age a rabbit can reach before dying (in generations) */
@@ -57,7 +57,7 @@ export type FibonaccisRabbitsProperties = MazeSolverProperties & {
  * - Random movement with backtracking prevention
  *
  * @group Solver
- * @category Algorithms
+ * @category  Fibonaccis Rabbits
  */
 export class FibonaccisRabbits extends MazeSolver {
   /** Maximum age a rabbit can reach before dying */

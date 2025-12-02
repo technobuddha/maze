@@ -12,7 +12,7 @@ import { MazeGenerator, type MazeGeneratorProperties } from './maze-generator.ts
  * - 'random': Randomly select any cell from the active list
  *
  * @group Generator
- * @category GrowingTree
+ * @category Growing Tree
  */
 export type Method = 'newest' | 'oldest' | 'middle' | 'random';
 
@@ -20,7 +20,7 @@ export type Method = 'newest' | 'oldest' | 'middle' | 'random';
  * Configuration properties for the Growing Tree maze generator.
  *
  * @group Generator
- * @category GrowingTree
+ * @category Growing Tree
  */
 export type GrowingTreeProperties = MazeGeneratorProperties & {
   /** Cell selection method - either a single method or weighted combination of methods */
@@ -51,7 +51,7 @@ export type GrowingTreeProperties = MazeGeneratorProperties & {
  * - Flexible maze structure control through method selection
  *
  * @group Generator
- * @category GrowingTree
+ * @category Growing Tree
  */
 export class GrowingTree extends MazeGenerator {
   private readonly list: Cell[];

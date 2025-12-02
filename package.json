@@ -36,8 +36,7 @@
     "spell": "npx cspell src"
   },
   "technobuddhaProject": {
-    "version": "0.99.139",
-    "created": "2025-09-01T21:21:26.150Z",
-    "updated": "2025-10-10T12:45:37.522Z"
+    "version": "0.1.46",
+    "created": "2025-09-01T21:21:26.150Z"
   }
 }

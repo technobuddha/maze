@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-conversion */
-import { type Matrix } from '../matrix.ts';
+import { type Matrix } from '../geometry/matrix.ts';
 
 /**
  * Matrix definition for triangle-based maze geometry.
@@ -20,8 +20,8 @@ import { type Matrix } from '../matrix.ts';
  * alternate positions to create a seamless honeycomb-like structure. Each triangle
  * connects to its three neighboring triangles along its sides.
  *
- * @group Geometry
- * @category Constants
+ * @group Maze
+ * @category  Triangle
  */
 export const triangleMatrix: Matrix = {
   /** Bridge configuration for multi-level maze support */

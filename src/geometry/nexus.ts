@@ -11,35 +11,35 @@ export type Directional<T> = Partial<Record<Direction, T | false | undefined>>;
 /**
  * Wall configuration mapping directions to boolean presence of walls
  * @group Geometry
- * @category Types
+ * @category  Nexus
  */
 export type Wall = Directional<true>;
 
 /**
  * Tunnel configuration mapping directions to their destination cells with facing
  * @group Geometry
- * @category Types
+ * @category  Nexus
  */
 export type Tunnels = Directional<CellFacing>;
 
 /**
  * Via (bridge) configuration mapping directions to arrays of connected cells
  * @group Geometry
- * @category Types
+ * @category  Nexus
  */
 export type Via = Directional<CellFacing[]>;
 
 /**
  * Offset values for geometric calculations, keyed by descriptive names
  * @group Geometry
- * @category Types
+ * @category  Nexus
  */
 export type Offsets = Record<string, number>;
 
 /**
  * Properties for constructing a Nexus instance
  * @group Geometry
- * @category Types
+ * @category  Nexus
  */
 export type NexusProperties = {
   /** X coordinate of the cell */
@@ -68,7 +68,7 @@ export type NexusProperties = {
  * and contains all the state needed for maze generation, solving, and rendering.
  *
  * @group Geometry
- * @category Classes
+ * @category  Nexus
  */
 export class Nexus {
   /** X coordinate of this cell in the maze grid */

@@ -5,7 +5,7 @@ import { type ClearOptions, Drawing } from './drawing.ts';
 /**
  * Configuration options for CanvasDrawing
  * @group Drawing
- * @category Types
+ * @category Canvas
  */
 export type CanvasDrawingOptions = {
   /** Scaling factor for drawing operations (default: 1) */
@@ -18,7 +18,7 @@ export type CanvasDrawingOptions = {
  * with optional scaling support.
  *
  * @group Drawing
- * @category Classes
+ * @category Canvas
  */
 export class CanvasDrawing extends Drawing {
   /** The 2D rendering context for the canvas */

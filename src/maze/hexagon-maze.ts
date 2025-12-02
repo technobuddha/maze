@@ -5,8 +5,8 @@ import {
   type Rect,
 } from '@technobuddha/library';
 
-import { type Cell, type Direction, type Kind, type Pillar } from '../geometry.ts';
-import { type DrawingSizes, Maze, type MazeProperties } from '../maze.ts';
+import { type Cell, type Direction, type Kind, type Pillar } from '../geometry/geometry.ts';
+import { type DrawingSizes, Maze, type MazeProperties } from '../geometry/maze.ts';
 
 import { hexagonMatrix } from './hexagon-matrix.ts';
 
@@ -19,8 +19,8 @@ const SIN60 = Math.sin(Math.PI / 3);
 /**
  * Properties for configuring a HexagonMaze instance.
  *
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Hexagon
  */
 export type HexagonMazeProperties = MazeProperties;
 
@@ -31,8 +31,8 @@ export type HexagonMazeProperties = MazeProperties;
  * and connections between cells follow six directions (a, b, c, d, e, f) corresponding to the
  * six sides of a hexagon. The maze supports alternating row patterns for proper tessellation.
  *
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Hexagon
  */
 export class HexagonMaze extends Maze {
   /**

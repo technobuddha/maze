@@ -29,10 +29,10 @@ import { Nexus, type Tunnels, type Via, type Wall } from './nexus.ts';
  * @param orientation - String to check
  * @returns True if the string is a valid Facing (uppercase letter or '!')
  * @group Geometry
- * @category Functions
+ * @category  Maze Geometry
  */
 export function isFacing(orientation: string): orientation is Facing {
-  return /^[A-Z!]$/u.test(orientation);
+  return /^[A-Z!]$/v.test(orientation);
 }
 
 /**
@@ -40,7 +40,7 @@ export function isFacing(orientation: string): orientation is Facing {
  * @param direction - The direction to convert
  * @returns The uppercase facing equivalent ('?' becomes '!')
  * @group Geometry
- * @category Functions
+ * @category  Maze Geometry
  */
 export function toFacing(direction: Direction): Facing {
   return direction === '?' ? '!' : (direction.toUpperCase() as Facing);
@@ -51,10 +51,10 @@ export function toFacing(direction: Direction): Facing {
  * @param orientation - String to check
  * @returns True if the string is a valid Direction (lowercase letter or '?')
  * @group Geometry
- * @category Functions
+ * @category  Maze Geometry
  */
 export function isDirection(orientation: string): orientation is Direction {
-  return /^[a-z?]$/u.test(orientation);
+  return /^[a-z?]$/v.test(orientation);
 }
 
 /**
@@ -62,7 +62,7 @@ export function isDirection(orientation: string): orientation is Direction {
  * @param facing - The facing to convert
  * @returns The lowercase direction equivalent ('!' becomes '?')
  * @group Geometry
- * @category Functions
+ * @category  Maze Geometry
  */
 export function toDirection(facing: Facing): Direction {
   return facing === '!' ? '?' : (facing.toLowerCase() as Direction);
@@ -71,7 +71,7 @@ export function toDirection(facing: Facing): Direction {
 /**
  * Ordering options for cell iteration and selection
  * @group Geometry
- * @category Types
+ * @category  Maze Geometry
  */
 export type AllOrder =
   | 'top-left'
@@ -87,7 +87,7 @@ export type AllOrder =
 /**
  * Configuration properties for maze geometry construction
  * @group Geometry
- * @category Types
+ * @category  Maze Geometry
  */
 export type MazeGeometryProperties = MessageControllerProperties & {
   /** Width of the maze in cells */
@@ -107,7 +107,7 @@ export type MazeGeometryProperties = MessageControllerProperties & {
  * Extends MessageController to provide event communication capabilities.
  *
  * @group Geometry
- * @category Classes
+ * @category  Maze Geometry
  */
 export abstract class MazeGeometry extends MessageController {
   /** Current width of the maze in cells */
@@ -424,6 +424,11 @@ export abstract class MazeGeometry extends MessageController {
   }
   //#endregion Direction
   //#region Cell Selection
+  /**
+   * Gets all cells in the maze grid in the specified order
+   * @param order - The ordering strategy for returning cells (default: 'top-left')
+   * @returns Array of all cells ordered according to the specified strategy
+   */
   public allCells(order: AllOrder = 'top-left'): Cell[] {
     const cells = create2dArray(this.width, this.height, (x, y) => ({ x, y })).flat();
 
@@ -459,40 +464,107 @@ export abstract class MazeGeometry extends MessageController {
     }
   }
 
+  /**
+   * Gets all cells that are actually part of the maze (not masked out).
+   *
+   * Filters the complete grid to return only cells where `inMaze` returns true,
+   * excluding any cells that have been masked out of the maze structure.
+   *
+   * @param order - The ordering strategy for returning cells
+   * @returns Array of cells that are part of the maze, ordered according to the specified strategy
+   */
   public cellsInMaze(order: AllOrder = 'top-left'): Cell[] {
     return this.allCells(order).filter((cell) => this.inMaze(cell));
   }
 
+  /**
+   * Gets all cells that are in the maze and under a mask.
+   *
+   * Returns cells that are both part of the maze structure and have a mask applied,
+   * which may indicate special cell states or visual treatments.
+   *
+   * @param order - The ordering strategy for returning cells
+   * @returns Array of masked cells ordered according to the specified strategy
+   */
   public cellsUnderMask(order: AllOrder = 'top-left'): Cell[] {
     return this.cellsInMaze(order).filter((cell) => this.nexus(cell).mask);
   }
 
+  /**
+   * Gets all cells on the edge of the maze.
+   *
+   * Returns cells that have at least one move leading outside the maze boundaries,
+   * identifying the perimeter cells of the maze structure.
+   *
+   * @param order - The ordering strategy for returning cells
+   * @returns Array of edge cells ordered according to the specified strategy
+   */
   public cellsOnEdge(order: AllOrder = 'top-left'): Cell[] {
     return this.cellsInMaze(order).filter(
       (cell) => this.moves(cell, { wall: 'all', inMaze: false }).length > 0,
     );
   }
 
+  /**
+   * Gets all cells in the interior of the maze.
+   *
+   * Returns cells where all possible moves lead to other cells within the maze,
+   * excluding edge cells that border the maze boundaries.
+   *
+   * @param order - The ordering strategy for returning cells
+   * @returns Array of interior cells ordered according to the specified strategy
+   */
   public cellsInterior(order: AllOrder = 'top-left'): Cell[] {
     return this.cellsInMaze(order).filter((cell) =>
       this.moves(cell, { wall: 'all', inMaze: 'all' }).every(({ target }) => this.inMaze(target)),
     );
   }
 
+  /**
+   * Gets all dead-end cells in the maze.
+   *
+   * Returns cells that have only one open passage, making them terminal points
+   * in the maze's path structure.
+   *
+   * @returns Array of dead-end cells
+   */
   public deadEnds(): Cell[] {
     return this.cellsInMaze().filter((cell) => this.isDeadEnd(cell));
   }
 
+  /**
+   * Selects a random cell from the maze.
+   *
+   * @returns A randomly chosen cell that is part of the maze
+   */
   public randomCell(): Cell {
     return this.randomPick(this.cellsInMaze())!;
   }
 
+  /**
+   * Creates a cell with a random facing direction.
+   *
+   * Selects a random wall direction from the cell and returns the cell facing
+   * the opposite direction, useful for establishing starting positions.
+   *
+   * @param cell - The cell to add facing to (defaults to a random cell)
+   * @returns Cell with a random facing direction
+   */
   public randomCellFacing(cell = this.randomCell()): CellFacing {
     const facing = this.opposite(this.randomPick(this.nexus(cell).wallDirections())!);
     return { ...cell, facing };
   }
   //#endregion
   //#region Cell
+  /**
+   * Checks if a cell is within the maze boundaries and not masked.
+   *
+   * Validates that the cell coordinates are within the grid dimensions and
+   * that the cell is not excluded by a mask.
+   *
+   * @param cell - The cell to check
+   * @returns True if the cell is part of the maze, false otherwise
+   */
   public inMaze(cell: Cell): boolean {
     return (
       cell.x >= 0 &&
@@ -503,6 +575,16 @@ export abstract class MazeGeometry extends MessageController {
     );
   }
 
+  /**
+   * Checks if two cells refer to the same location.
+   *
+   * Compares cell coordinates and tunnel identifiers (if present) to determine
+   * if both cells represent the same maze location.
+   *
+   * @param cell1 - First cell to compare
+   * @param cell2 - Second cell to compare
+   * @returns True if cells refer to the same location, false otherwise
+   */
   public isSame(cell1: Cell | undefined | null, cell2: Cell | undefined | null): boolean;
   public isSame(cell1: CellTunnel, cell2: CellTunnel): boolean {
     if (cell1 && cell2 && 'tunnel' in cell1 && 'tunnel' in cell2) {
@@ -511,10 +593,30 @@ export abstract class MazeGeometry extends MessageController {
     return cell1?.x === cell2?.x && cell1?.y === cell2?.y;
   }
 
+  /**
+   * Checks if two cells are identical including their facing direction.
+   *
+   * Compares both the cell coordinates and the facing direction to determine
+   * complete equality of positioned cells.
+   *
+   * @param cell1 - First cell with facing to compare
+   * @param cell2 - Second cell with facing to compare
+   * @returns True if cells are identical in position and facing, false otherwise
+   */
   public isIdentical(cell1: CellFacing, cell2: CellFacing): boolean {
     return cell1.x === cell2.x && cell1.y === cell2.y && cell1.facing === cell2.facing;
   }
 
+  /**
+   * Calculates the Manhattan distance between two cells.
+   *
+   * Computes the grid-based distance (sum of horizontal and vertical distances)
+   * between cells, accounting for maze wrapping if enabled.
+   *
+   * @param a - First cell
+   * @param b - Second cell
+   * @returns Manhattan distance between the cells
+   */
   public manhattanDistance(a: Cell, b: Cell): number {
     return manhattanDistance(a, b, {
       width: this.width,
@@ -524,9 +626,29 @@ export abstract class MazeGeometry extends MessageController {
     });
   }
 
+  /**
+   * Checks if a cell is a dead end.
+   *
+   * Determines whether the cell has only one open passage, making it a terminal
+   * point in the maze with no branching paths.
+   *
+   * @param cell - Cell to check
+   * @returns True if the cell is a dead end, false otherwise
+   */
   public abstract isDeadEnd(cell: Cell): boolean;
   //#endregion
   //#region Movement
+  /**
+   * Traverses from a cell in a specified direction.
+   *
+   * Moves one step in the given direction according to the maze geometry's movement
+   * rules, returning the destination cell with appropriate facing direction.
+   *
+   * @param cell - Starting cell
+   * @param direction - Direction to traverse
+   * @returns Destination cell with facing direction
+   * @throws Error if traversal in the specified direction is not possible
+   */
   public traverse(cell: Cell, direction: Direction): CellFacing {
     let move = this.matrix.move[this.cellKind(cell)][direction];
 
@@ -541,6 +663,16 @@ export abstract class MazeGeometry extends MessageController {
     throw new Error(`No traverse for cell (${cell.x}, ${cell.y}) in direction "${direction}"`);
   }
 
+  /**
+   * Gets all possible traversals from a cell.
+   *
+   * Returns all directions that can be traversed from the cell, optionally filtered
+   * by wall state and whether destinations are in the maze.
+   *
+   * @param cell - Starting cell
+   * @param options - Filtering options for wall state and destination location
+   * @returns Array of possible moves with direction and target
+   */
   public traversals(
     cell: Cell,
     { wall = 'all', inMaze = 'all' }: { wall?: boolean | 'all'; inMaze?: boolean | 'all' } = {},
@@ -551,7 +683,25 @@ export abstract class MazeGeometry extends MessageController {
       .filter(({ target }) => inMaze === 'all' || this.inMaze(target) === inMaze);
   }
 
-  public traverseTo(source: Cell, destination: Cell): { direction: Direction; target: CellFacing } {
+  /**
+   * Finds the direction to traverse from source to destination cell.
+   *
+   * Searches all possible directions from the source cell to find which one
+   * leads to the destination, returning unknown direction markers if no path exists.
+   *
+   * @param source - Starting cell
+   * @param destination - Target cell
+   * @returns Object with direction and target, or unknown markers if unreachable
+   */
+  public traverseTo(
+    source: Cell,
+    destination: Cell,
+  ): {
+    /** Direction to move from source to reach destination */
+    direction: Direction;
+    /** Target cell with facing direction */
+    target: CellFacing;
+  } {
     return (
       this.nexus(source)
         .wallDirections()
@@ -566,6 +716,17 @@ export abstract class MazeGeometry extends MessageController {
     );
   }
 
+  /**
+   * Gets all possible moves from a cell, following tunnels and portals.
+   *
+   * Returns all directions that can be moved from the cell, automatically following
+   * any tunnel or portal connections to reach the final destination, optionally filtered
+   * by wall state and whether destinations are in the maze.
+   *
+   * @param cell - Starting cell
+   * @param options - Filtering options for wall state and destination location
+   * @returns Array of possible moves with direction, target, and optional tunnel path
+   */
   public moves(
     cell: Cell,
     { wall = false, inMaze = true }: { wall?: boolean | 'all'; inMaze?: boolean | 'all' } = {},
@@ -576,7 +737,26 @@ export abstract class MazeGeometry extends MessageController {
       .filter(({ target }) => inMaze === 'all' || this.inMaze(target) === inMaze);
   }
 
-  public walk(cell: Cell, direction: Direction): { target: CellFacing; tunnel?: CellFacing[] } {
+  /**
+   * Walks from a cell in a direction, following tunnels and portals to the final destination.
+   *
+   * Traverses one step in the specified direction and then automatically follows any
+   * tunnel or portal connections until reaching a cell without a portal or exiting the maze.
+   * Records all intermediate cells in the tunnel path.
+   *
+   * @param cell - Starting cell
+   * @param direction - Direction to walk
+   * @returns Object with target cell and optional array of cells traversed through tunnels
+   */
+  public walk(
+    cell: Cell,
+    direction: Direction,
+  ): {
+    /** Target cell with facing direction after walking */
+    target: CellFacing;
+    /** Optional array of cells traversed through tunnels */
+    tunnel?: CellFacing[];
+  } {
     const tunnel: CellFacing[] = [];
 
     let target = this.traverse(cell, direction);
@@ -599,6 +779,16 @@ export abstract class MazeGeometry extends MessageController {
     return tunnel.length > 0 ? { target, tunnel } : { target };
   }
 
+  /**
+   * Resolves a cell position after applying a movement offset.
+   *
+   * Applies the x and y offsets to the cell coordinates, handling wrapping
+   * at maze boundaries if horizontal or vertical wrapping is enabled.
+   *
+   * @param cell - Starting cell
+   * @param move - Offset to apply with x and y displacement
+   * @returns Cell at the new position after applying the offset and wrapping
+   */
   public resolveMove(cell: Cell, move: MoveOffset): Cell {
     let { x, y } = cell;
 
@@ -626,16 +816,44 @@ export abstract class MazeGeometry extends MessageController {
     return { x, y };
   }
 
+  /**
+   * Finds the direction and path to walk from source to destination cell.
+   *
+   * Searches all possible walk directions from the source cell to find which one
+   * leads to the destination (following tunnels and portals), returning undefined if unreachable.
+   *
+   * @param source - Starting cell
+   * @param destination - Target cell
+   * @returns Object with direction, target, and optional tunnel path, or undefined if unreachable
+   */
   public walkTo(
     source: Cell,
     destination: Cell,
-  ): { direction: Direction; target: CellFacing; tunnel?: CellFacing[] } | undefined {
+  ):
+    | {
+        /** Direction to walk from source to reach destination */
+        direction: Direction;
+        /** Target cell with facing direction after walking */
+        target: CellFacing;
+        /** Optional array of cells traversed through tunnels */
+        tunnel?: CellFacing[];
+      }
+    | undefined {
     return this.nexus(source)
       .wallDirections()
       .map((direction) => ({ direction, ...this.walk(source, direction) }))
       .find(({ target }) => this.isSame(destination, target));
   }
 
+  /**
+   * Gets the preferred movement directions from a cell.
+   *
+   * Returns directions that are both available (have walls) and marked as preferred
+   * in the maze geometry's movement matrix for the cell's kind.
+   *
+   * @param cell - Cell to get preferred directions for
+   * @returns Array of preferred directions
+   */
   public preferreds(cell: Cell): Direction[] {
     return this.moves(cell, { wall: true })
       .filter(({ direction }) => this.matrix.preferred[this.cellKind(cell)].includes(direction))

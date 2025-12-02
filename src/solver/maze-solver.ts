@@ -13,7 +13,7 @@ type Trash = AbortController;
  * Configuration properties for maze solver instances.
  *
  * @group Solver
- * @category Properties
+ * @category Maze Solver
  */
 export type MazeSolverProperties = RandomProperties & {
   /** The maze instance to be solved */
@@ -26,7 +26,7 @@ export type MazeSolverProperties = RandomProperties & {
  * Arguments for the solve method configuration.
  *
  * @group Solver
- * @category Types
+ * @category Maze Solver
  */
 export type SolveArguments = {
   /** Optional color override for visual elements during solving */
@@ -50,7 +50,7 @@ export type SolveArguments = {
  * the abstract solve method with their specific algorithm logic.
  *
  * @group Solver
- * @category Base
+ * @category Maze Solver
  */
 export abstract class MazeSolver extends Random implements Disposable {
   /** Animation speed multiplier for visualization */

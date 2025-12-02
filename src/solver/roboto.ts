@@ -33,7 +33,7 @@ import { MazeSolver, type MazeSolverProperties } from './maze-solver.ts';
  * @typeParam Algorithm - The algorithm identifier string
  * @typeParam Properties - The specific robot properties type
  * @group Solver
- * @category Types
+ * @category Roboto
  */
 export type RoboProperties<Algorithm extends string, Properties> = Omit<
   Properties,
@@ -50,7 +50,7 @@ export type RoboProperties<Algorithm extends string, Properties> = Omit<
  * each with their specific configuration properties.
  *
  * @group Solver
- * @category Types
+ * @category Roboto
  */
 export type Robo =
   | RoboProperties<'backtracking', BacktrackingRobotProperties>
@@ -65,7 +65,7 @@ export type Robo =
  * Configuration properties for the Roboto maze solver.
  *
  * @group Solver
- * @category Properties
+ * @category Roboto
  */
 export type RobotoProperties = MazeSolverProperties & {
   /** Array of robot configurations to deploy in the maze */
@@ -87,7 +87,7 @@ export type RobotoProperties = MazeSolverProperties & {
  * - Automatic solution capture from the first successful robot
  *
  * @group Solver
- * @category Algorithms
+ * @category Roboto
  */
 export class Roboto extends MazeSolver {
   /** Random seed for synchronized number generation across all robots */

@@ -12,7 +12,7 @@ import {
  * Defines how cells can connect across different levels through bridge structures.
  *
  * @group Geometry
- * @category Types
+ * @category Matrix
  */
 export type BridgeMatrix = {
   /** Number of pieces required to complete a bridge connection (default: 1) */
@@ -30,7 +30,7 @@ export type BridgeMatrix = {
  * Each maze type (square, hexagonal, triangular, etc.) has its own unique matrix.
  *
  * @group Geometry
- * @category Types
+ * @category Matrix
  */
 export type Matrix = {
   /** All valid directions for movement in this geometry */

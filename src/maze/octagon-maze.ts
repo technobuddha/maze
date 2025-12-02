@@ -1,17 +1,17 @@
 import { type Rect } from '@technobuddha/library';
 
-import { type Cell, type Direction, type Kind, type Pillar } from '../geometry.ts';
-import { Maze, type MazeProperties } from '../maze.ts';
+import { type Cell, type Direction, type Kind, type Pillar } from '../geometry/geometry.ts';
+import { Maze, type MazeProperties } from '../geometry/maze.ts';
 
-import { octagonMatrix, type MatrixPart } from './octagon-matrix.ts';
+import { type MatrixPart, octagonMatrix } from './octagon-matrix.ts';
 
 const { SQRT2, SQRT1_2 } = Math;
 
 /**
  * Properties for configuring an OctagonMaze instance.
  *
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Octagon
  */
 export type OctagonMazeProperties = MazeProperties;
 
@@ -27,8 +27,8 @@ export type OctagonMazeProperties = MazeProperties;
  * and visual effects across all supported cell types using precise mathematical
  * constants and coordinate systems.
  *
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Octagon
  */
 export abstract class OctagonMaze extends Maze {
   /**

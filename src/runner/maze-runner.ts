@@ -15,7 +15,7 @@ import { type PlayMode } from './play-mode.ts';
  * @returns A new maze instance
  *
  * @group Runner
- * @category Types
+ * @category  Maze Runner
  */
 export type MazeMaker = (props: MazeProperties) => Maze;
 
@@ -26,7 +26,7 @@ export type MazeMaker = (props: MazeProperties) => Maze;
  * @returns A new maze generator instance
  *
  * @group Runner
- * @category Types
+ * @category  Maze Runner
  */
 export type GeneratorMaker = (props: MazeGeneratorProperties) => MazeGenerator;
 
@@ -37,7 +37,7 @@ export type GeneratorMaker = (props: MazeGeneratorProperties) => MazeGenerator;
  * @returns A new maze solver instance
  *
  * @group Runner
- * @category Types
+ * @category  Maze Runner
  */
 export type SolverMaker = (props: MazeSolverProperties) => MazeSolver;
 
@@ -47,7 +47,7 @@ export type SolverMaker = (props: MazeSolverProperties) => MazeSolver;
  * @typeParam maze - The maze instance to extend
  *
  * @group Runner
- * @category Types
+ * @category  Maze Runner
  */
 export type Plugin = (this: void, maze: Maze) => void;
 
@@ -55,7 +55,7 @@ export type Plugin = (this: void, maze: Maze) => void;
  * Configuration properties for the MazeRunner.
  *
  * @group Runner
- * @category Types
+ * @category  Maze Runner
  */
 export type MazeRunnerProperties = {
   /** Factory function for creating the maze instance */
@@ -100,7 +100,7 @@ let id = 0;
  * based on completion status and user commands.
  *
  * @group Runner
- * @category Core
+ * @category  Maze Runner
  */
 export class MazeRunner extends EventTarget {
   /** The maze instance managed by this runner */

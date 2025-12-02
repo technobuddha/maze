@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-conversion */
-import { type Matrix } from '../matrix.ts';
+import { type Matrix } from '../geometry/matrix.ts';
 
 /**
  * Matrix definition for wedge-based maze geometry.
@@ -25,8 +25,8 @@ import { type Matrix } from '../matrix.ts';
  * connections at specific angles. This geometry produces intricate maze structures with
  * multiple junction types and sophisticated pathfinding challenges.
  *
- * @group Geometry
- * @category Constants
+ * @group Maze
+ * @category  Wedge
  */
 export const wedgeMatrix: Matrix = {
   /** Bridge configuration for multi-level maze support with 2 bridge pieces per kind */

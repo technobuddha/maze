@@ -4,7 +4,7 @@
  * All colors should be valid CSS color strings (hex, rgb, oklch, etc.).
  *
  * @group Geometry
- * @category Types
+ * @category Color
  */
 export type MazeColors = {
   /** Basic cell/floor color for walkable areas */
@@ -51,7 +51,7 @@ export type MazeColors = {
  * - Bright colors for important elements like solution paths and errors
  *
  * @group Geometry
- * @category Constants
+ * @category Color
  */
 export const defaultColors: NonNullable<MazeColors> = {
   /** Pure black - provides maximum contrast against walls */

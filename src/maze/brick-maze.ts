@@ -7,18 +7,46 @@ import {
   type Rect,
 } from '@technobuddha/library';
 
-import { type Cell, type Direction, type Kind, type Pillar } from '../geometry.ts';
-import { type DrawingSizes, Maze, type MazeProperties } from '../maze.ts';
+import { type Cell, type Direction, type Kind, type Pillar } from '../geometry/geometry.ts';
+import { type DrawingSizes, Maze, type MazeProperties } from '../geometry/maze.ts';
 
 import { brickMatrix } from './brick-matrix.ts';
 
+/**
+ * Configuration properties for brick maze construction.
+ *
+ * Inherits all standard maze properties for creating a brick-pattern maze where
+ * cells are arranged in alternating rows like bricks in a wall.
+ *
+ * @group Maze
+ * @category Brick
+ */
 export type BrickMazeProperties = MazeProperties;
 
+/**
+ * Brick-pattern maze with alternating row offsets.
+ *
+ * Creates mazes where cells are arranged in a brick-like pattern with alternating
+ * rows offset by half a cell width. Each cell has six potential connections (two
+ * horizontal and four diagonal). The offset creates a distinctive brick wall appearance
+ * while maintaining rectangular grid coordinates.
+ *
+ * @group Maze
+ * @category Brick
+ */
 export class BrickMaze extends Maze {
   public constructor({ cellSize = 20, wallSize = 1, voidSize = 2, ...props }: BrickMazeProperties) {
     super({ cellSize, wallSize, voidSize, ...props }, brickMatrix);
   }
 
+  /**
+   * Calculates drawing dimensions for the brick maze layout.
+   *
+   * Returns size parameters that account for the brick pattern's horizontal offset,
+   * where cells are grouped in pairs with appropriate padding for the offset rows.
+   *
+   * @returns Drawing size configuration with group dimensions and padding
+   */
   protected drawingSize(): DrawingSizes {
     return {
       groupWidth: this.cellSize * 2,
@@ -28,10 +56,28 @@ export class BrickMaze extends Maze {
     };
   }
 
+  /**
+   * Determines the kind/type of a cell based on its row position.
+   *
+   * Returns 0 for even rows and 1 for odd rows, which determines the horizontal
+   * offset in the brick pattern.
+   *
+   * @param cell - Cell to determine the kind for
+   * @returns Cell kind (0 for even rows, 1 for odd rows)
+   */
   public cellKind(cell: Cell): Kind {
     return modulo(cell.y, 2);
   }
 
+  /**
+   * Calculates the top-left origin point for drawing a cell.
+   *
+   * Computes the pixel coordinates where the cell starts, accounting for the
+   * horizontal offset in odd rows to create the brick pattern.
+   *
+   * @param cell - Cell to get the origin for
+   * @returns Cartesian coordinates of the cell's top-left corner
+   */
   protected cellOrigin(cell: Cell): Cartesian {
     return {
       x: cell.x * this.cellSize * 2 + (this.cellKind(cell) === 0 ? 0 : this.cellSize),
@@ -39,6 +85,15 @@ export class BrickMaze extends Maze {
     };
   }
 
+  /**
+   * Calculates coordinate offsets for drawing cell elements.
+   *
+   * Returns a set of named x and y coordinates that define the positions of walls,
+   * voids, and interior spaces within the cell's drawing area.
+   *
+   * @param _kind - Cell kind (unused in brick mazes)
+   * @returns Record of named offset coordinates for drawing
+   */
   protected offsets(_kind: Kind): Record<string, number> {
     const x0 = 0;
     const x1 = x0 + this.voidSize;
@@ -64,9 +119,12 @@ export class BrickMaze extends Maze {
 
   /**
    * Erases a cell by drawing over its entire area with the specified color.
-   * Covers the complete cell including walls and void spaces.
+   *
+   * Fills the complete cell area including walls and void spaces, effectively
+   * clearing the cell from the drawing.
+   *
    * @param cell - The cell to erase
-   * @param color - The color to fill with (defaults to void color)
+   * @param color - The color to fill with
    */
   public eraseCell(cell: Cell, color = this.color.void): void {
     if (this.drawing) {
@@ -76,10 +134,13 @@ export class BrickMaze extends Maze {
   }
 
   /**
-   * Draws the floor/interior area of a hexagonal cell.
-   * Renders the walkable area within the cell boundaries.
+   * Draws the floor/interior area of a brick cell.
+   *
+   * Renders the walkable area within the cell boundaries, filling the space
+   * between the walls and void areas.
+   *
    * @param cell - The cell to draw the floor for
-   * @param color - The floor color (defaults to cell color)
+   * @param color - The floor color
    */
   public drawFloor(cell: Cell, color = this.color.cell): void {
     if (this.drawing) {
@@ -90,11 +151,15 @@ export class BrickMaze extends Maze {
   }
 
   /**
-   * Draws a wall on the specified side of a hexagonal cell.
-   * Each side corresponds to one of the six directions in hexagonal coordinates.
+   * Draws a wall on the specified side of a brick cell.
+   *
+   * Renders a wall segment in one of six directions. Brick cells have walls in
+   * six directions: a (top-left), b (top-right), c (right), d (bottom-right),
+   * e (bottom-left), and f (left).
+   *
    * @param cell - The cell to draw the wall for
-   * @param direction - The side/direction of the wall (a=top-left, b=top-right, c=right, d=bottom-right, e=bottom-left, f=left)
-   * @param color - The wall color (defaults to wall color)
+   * @param direction - The side/direction of the wall
+   * @param color - The wall color
    */
   public drawWall(cell: Cell, direction: Direction, color = this.color.wall): void {
     if (this.drawing) {
@@ -136,10 +201,14 @@ export class BrickMaze extends Maze {
   }
 
   /**
-   * Draws a passage (opening) in a wall by creating a walkable connection.
-   * Renders wall sections with a cell-colored opening in the middle to show connectivity.
+   * Draws a passage (opening) in a wall to show a connection between cells.
+   *
+   * Renders wall sections with a cell-colored opening in the middle to indicate
+   * a walkable connection. The wall areas on either side of the passage remain visible
+   * to maintain the maze structure.
+   *
    * @param cell - The cell to draw the passage from
-   * @param direction - The direction of the passage (a-f for hexagonal sides)
+   * @param direction - The direction of the passage
    * @param wallColor - Color for wall sections flanking the passage
    * @param cellColor - Color for the passage opening itself
    */
@@ -205,11 +274,14 @@ export class BrickMaze extends Maze {
   }
 
   /**
-   * Draws a pillar (corner/intersection) where two walls meet in a hexagonal cell.
-   * Pillars are rendered at the intersections between adjacent wall directions.
-   * @param param0 - The cell coordinates (destructured as x, y)
-   * @param pillar - The pillar identifier (two-letter combination like 'ab', 'bc', etc.)
-   * @param color - The pillar color (defaults to wall color)
+   * Draws a pillar at the intersection where two walls meet.
+   *
+   * Renders corner pieces at wall intersections, identified by two-letter combinations
+   * of adjacent directions (e.g., 'ab' for the corner between walls a and b).
+   *
+   * @param param0 - The cell coordinates
+   * @param pillar - The pillar identifier (two adjacent directions)
+   * @param color - The pillar color
    */
   public drawPillar({ x, y }: Cell, pillar: Pillar, color = this.color.wall): void {
     if (this.drawing) {
@@ -250,9 +322,11 @@ export class BrickMaze extends Maze {
   }
 
   /**
-   * Calculates the drawing box (bounding rectangle) for content within a hexagonal cell.
-   * Returns the largest inscribed rectangle that can fit inside the cell's walkable area.
-   * Used for positioning text, symbols, or other content within the cell.
+   * Calculates the drawing box for content within a brick cell.
+   *
+   * Returns the largest inscribed rectangle that can fit inside the cell's walkable
+   * area, used for positioning text, symbols, or other content centered in the cell.
+   *
    * @param cell - The cell to calculate the drawing box for
    * @returns Rectangle defining the usable drawing area within the cell
    */
@@ -270,10 +344,13 @@ export class BrickMaze extends Maze {
   }
 
   /**
-   * Draws an X mark across a hexagonal cell to indicate blocked or inaccessible areas.
-   * Renders diagonal lines from corner to corner within the cell interior.
+   * Draws an X mark across a brick cell to indicate blocked or inaccessible areas.
+   *
+   * Renders diagonal lines from corner to corner within the cell interior to visually
+   * mark the cell as blocked, masked, or otherwise special.
+   *
    * @param cell - The cell to mark with an X
-   * @param color - The X mark color (defaults to blocked color)
+   * @param color - The X mark color
    */
   public drawX(cell: Cell, color = this.color.blocked): void {
     if (this.drawing) {

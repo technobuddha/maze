@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-conversion */
-import { type Matrix } from '../matrix.ts';
+import { type Matrix } from '../geometry/matrix.ts';
 
 /**
  * Matrix configuration for cubic maze tessellation with square cells and diagonal connections.
@@ -14,8 +14,8 @@ import { type Matrix } from '../matrix.ts';
  * This creates a tessellation where each cell type has different connection patterns,
  * allowing for complex pathways including diagonal movement through the maze.
  *
- * @group Geometry
- * @category Matrices
+ * @group Maze
+ * @category Cubic
  */
 export const cubicMatrix: Matrix = {
   /**

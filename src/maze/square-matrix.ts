@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-conversion */
-import { type Matrix } from '../matrix.ts';
+import { type Matrix } from '../geometry/matrix.ts';
 
 /**
  * Matrix definition for square-based maze geometry.
@@ -21,8 +21,8 @@ import { type Matrix } from '../matrix.ts';
  * offset calculations or multiple cell orientations. Each cell connects directly
  * to its orthogonal neighbors in a regular grid pattern.
  *
- * @group Geometry
- * @category Constants
+ * @group Maze
+ * @category  Square
  */
 export const squareMatrix: Matrix = {
   /** Bridge configuration for multi-level maze support */

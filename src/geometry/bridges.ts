@@ -6,7 +6,7 @@ import { type Direction } from './geometry.ts';
  * creating complex 3D-like navigation paths within a 2D structure.
  *
  * @group Geometry
- * @category Types
+ * @category Bridges
  */
 export type Bridge = {
   /** Number of pieces required to complete this bridge connection */
@@ -27,7 +27,7 @@ export type Bridge = {
  * Used as a template that gets instantiated into full Bridge objects during maze creation.
  *
  * @group Geometry
- * @category Types
+ * @category Bridges
  */
 export type BridgeLayout = {
   /** Array of directions defining the main bridge pathway */

@@ -23,7 +23,7 @@ function create(tag: string, attributes: Record<string, string | number> = {}): 
  * This implementation generates vector graphics that can be scaled without quality loss.
  *
  * @group Drawing
- * @category Classes
+ * @category SVG
  */
 export class SVGDrawing extends Drawing {
   /** The SVG element that serves as the drawing container */

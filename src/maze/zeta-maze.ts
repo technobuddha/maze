@@ -1,4 +1,4 @@
-import { type Cell } from '../geometry.ts';
+import { type Cell } from '../geometry/geometry.ts';
 
 import { DotMaze, type DotMazeProperties } from './dot-maze.ts';
 

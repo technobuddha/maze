@@ -1,9 +1,9 @@
 import { type Cartesian, modulo, type Rect, toRadians } from '@technobuddha/library';
 
-import { type Cell, type Direction, type Kind, type Pillar } from '../geometry.ts';
-import { type DrawingSizes, Maze, type MazeProperties } from '../maze.ts';
+import { type Cell, type Direction, type Kind, type Pillar } from '../geometry/geometry.ts';
+import { type DrawingSizes, Maze, type MazeProperties } from '../geometry/maze.ts';
 
-import { kindMatrix, pentagonMatrix, offsetXMatrix, offsetYMatrix } from './pentagon-matrix.ts';
+import { kindMatrix, offsetXMatrix, offsetYMatrix, pentagonMatrix } from './pentagon-matrix.ts';
 
 /**
  * Properties for configuring a pentagon maze.

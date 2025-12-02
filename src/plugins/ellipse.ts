@@ -14,7 +14,7 @@ import { type Maze } from '../geometry/index.ts';
  * @param maze - The maze instance to apply the elliptical shape to
  *
  * @group Plugin
- * @category Shape
+ * @category Ellipse
  */
 export function ellipsePlugin(maze: Maze): void {
   const rx = Math.floor(maze.width / 2) + 1;

@@ -10,7 +10,7 @@ import { RobotError } from './robot-error.ts';
  * Configuration properties for the Trémaux algorithm robot.
  *
  * @group Robot
- * @category Properties
+ * @category  Trémaux
  */
 export type TremauxRobotProperties = RobotProperties & {
   /** Whether to visually mark passages with traversal indicators */
@@ -42,7 +42,7 @@ export type TremauxRobotProperties = RobotProperties & {
  * - Uses star avatar to distinguish from other robot types
  *
  * @group Robot
- * @category Algorithms
+ * @category  Trémaux
  */
 export class TremauxRobot extends Robot {
   /** Algorithm identifier for this robot type */

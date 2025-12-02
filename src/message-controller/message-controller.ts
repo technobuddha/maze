@@ -4,8 +4,8 @@ import { CustomEventTarget } from '@technobuddha/library/common';
 /**
  * Configuration options for message display and styling.
  *
- * @group MessageController
- * @category Types
+ * @group  Message Controller
+ * @category  Message Controller
  */
 export type MessageOptions = {
   /** Optional color for message styling */
@@ -20,24 +20,24 @@ export type MessageOptions = {
  * @param message - The message text to display
  * @param options - Display and styling options for the message
  *
- * @group MessageController
- * @category Types
+ * @group  Message Controller
+ * @category  Message Controller
  */
 export type MessageCallback = (message: string, options: MessageOptions) => void;
 
 /**
  * Configuration properties for MessageController instances.
  *
- * @group MessageController
- * @category Types
+ * @group  Message Controller
+ * @category  Message Controller
  */
 export type MessageControllerProperties = RandomProperties;
 
 /**
  * Internal payload type for message events.
  *
- * @group MessageController
- * @category Types
+ * @group  Message Controller
+ * @category  Message Controller
  * @internal
  */
 type Payload = { message: string } & MessageOptions;
@@ -45,8 +45,8 @@ type Payload = { message: string } & MessageOptions;
 /**
  * Event type definitions for the message controller.
  *
- * @group MessageController
- * @category Types
+ * @group  Message Controller
+ * @category  Message Controller
  * @internal
  */
 type Events = {
@@ -71,8 +71,8 @@ type Events = {
  * - Automatic callback management with cleanup
  * - Extensible architecture for different message display implementations
  *
- * @group MessageController
- * @category Core
+ * @group  Message Controller
+ * @category  Message Controller
  */
 export abstract class MessageController extends Random {
   /** Internal event target for message communication */

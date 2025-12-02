@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-conversion */
-import { type Matrix } from '../matrix.ts';
+import { type Matrix } from '../geometry/matrix.ts';
 
 /**
  * Keys that define the variable parts of matrix configurations.
@@ -13,8 +13,8 @@ export type Keys = 'bridge' | 'opposite' | 'move' | 'rightTurn' | 'leftTurn' | '
  * The main matrix configuration that remains constant across octagon maze variants.
  * Contains directions, pillars, walls, preferences, and angles.
  *
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Octagon
  */
 export type MatrixMain = Omit<Matrix, Keys>;
 
@@ -22,8 +22,8 @@ export type MatrixMain = Omit<Matrix, Keys>;
  * The variable part of matrix configuration that differs between octagon maze variants.
  * Contains bridge connections, opposites, movement patterns, and turn sequences.
  *
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Octagon
  */
 export type MatrixPart = Pick<Matrix, Keys>;
 
@@ -34,8 +34,8 @@ export type MatrixPart = Pick<Matrix, Keys>;
  * This includes a 16-direction system with three cell kinds (0=octagon, 1=diamond, 2=square)
  * that can be combined in different ways to create various tessellation patterns.
  *
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Octagon
  */
 export const octagonMatrix: MatrixMain = {
   /**
@@ -103,8 +103,8 @@ export const octagonMatrix: MatrixMain = {
  * with diamond-shaped cells (kind 1). The diamond cells are positioned at the intersections
  * between octagonal cells, creating a more complex but visually appealing pattern.
  *
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Octagon
  */
 export const matrixDiamond: MatrixPart = {
   /**
@@ -276,8 +276,8 @@ export const matrixDiamond: MatrixPart = {
  * with square cells (kind 2). The square cells are positioned between octagonal cells,
  * creating a different tessellation pattern from the diamond variant.
  *
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Octagon
  */
 export const matrixSquare: MatrixPart = {
   /**

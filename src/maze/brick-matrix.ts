@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-conversion */
-import { type Matrix } from '../matrix.ts';
+import { type Matrix } from '../geometry/matrix.ts';
 
 /**
  * Matrix definition for brick/hexagonal maze geometry.
@@ -21,8 +21,8 @@ import { type Matrix } from '../matrix.ts';
  * - Kind 0: Left-aligned hexagons (odd rows)
  * - Kind 1: Right-aligned hexagons (even rows)
  *
- * @group Geometry
- * @category Constants
+ * @group Maze
+ * @category Brick
  */
 export const brickMatrix: Matrix = {
   /** Bridge configuration for multi-level hexagonal maze connections */

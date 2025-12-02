@@ -4,7 +4,7 @@ import { Robot, type RobotProperties } from './robot.ts';
  * Configuration properties for the Random Mouse robot.
  *
  * @group Robot
- * @category Properties
+ * @category  Random Mouse
  */
 export type RandomMouseRobotProperties = Omit<RobotProperties, 'program'>;
 
@@ -28,7 +28,7 @@ export type RandomMouseRobotProperties = Omit<RobotProperties, 'program'>;
  * while maintaining simplicity.
  *
  * @group Robot
- * @category Algorithms
+ * @category  Random Mouse
  */
 export class RandomMouseRobot extends Robot {
   /** Algorithm identifier for this robot type */

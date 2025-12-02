@@ -7,7 +7,7 @@ import { RobotError } from './robot-error.ts';
  * Configuration properties for the Wall Walking robot.
  *
  * @group Robot
- * @category Properties
+ * @category  Wall Walking
  */
 export type WallWalkingRobotProperties = Omit<RobotProperties, 'program'> & {
   /** Direction preference for wall following (right-hand or left-hand rule) */
@@ -35,7 +35,7 @@ export type WallWalkingRobotProperties = Omit<RobotProperties, 'program'> & {
  * - Throws errors when stuck or unable to make decisions
  *
  * @group Robot
- * @category Algorithms
+ * @category  Wall Walking
  */
 export class WallWalkingRobot extends Robot {
   /** Algorithm identifier for this robot type */

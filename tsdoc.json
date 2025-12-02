@@ -12,6 +12,11 @@
       "allowMultiple": true
     },
     {
+      "tagName": "@document",
+      "syntaxKind": "block",
+      "allowMultiple": true
+    },
+    {
       "tagName": "@group",
       "syntaxKind": "block",
       "allowMultiple": false

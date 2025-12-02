@@ -3,7 +3,7 @@ import { type Cartesian, type Rect } from '@technobuddha/library';
 /**
  * Options for clearing a drawing canvas
  * @group Drawing
- * @category Types
+ * @category Drawing
  */
 export type ClearOptions = {
   /** X coordinate of the origin point for clearing */
@@ -18,7 +18,7 @@ export type ClearOptions = {
  * for various output formats like Canvas, SVG, etc.
  *
  * @group Drawing
- * @category Classes
+ * @category Drawing
  */
 export abstract class Drawing {
   /** The width of the drawing area in pixels */

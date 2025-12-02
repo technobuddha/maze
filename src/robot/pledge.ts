@@ -6,7 +6,7 @@ import { Robot, type RobotProperties } from './robot.ts';
  * Direction of rotation for the Pledge algorithm.
  *
  * @group Robot
- * @category Types
+ * @category  Pledge
  */
 export type Turn = 'right' | 'left';
 
@@ -14,7 +14,7 @@ export type Turn = 'right' | 'left';
  * Configuration properties for the Pledge algorithm robot.
  *
  * @group Robot
- * @category Properties
+ * @category  Pledge
  */
 export type PledgeRobotProperties = RobotProperties & {
   /** Direction preference for turning when following walls */
@@ -67,7 +67,7 @@ function rotateLeft(cell: CellFacing): CellFacing {
  * solution method for maze navigation.
  *
  * @group Robot
- * @category Algorithms
+ * @category  Pledge
  */
 export class PledgeRobot extends Robot {
   /** Current operating mode: straight-line or wall-following */

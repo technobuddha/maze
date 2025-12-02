@@ -8,7 +8,7 @@ import { MazeSolver, type MazeSolverProperties } from './maze-solver.ts';
  * Configuration properties for the Filler maze solver.
  *
  * @group Solver
- * @category Properties
+ * @category Filler
  */
 export type FillerProperties = MazeSolverProperties & {
   /** Color used for marking blocked/filled cells */
@@ -29,7 +29,7 @@ export type FillerProperties = MazeSolverProperties & {
  * remaining simplified path from entrance to exit.
  *
  * @group Solver
- * @category Algorithms
+ * @category Filler
  */
 export class Filler extends MazeSolver {
   /** Color used for marking filled/blocked cells */

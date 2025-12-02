@@ -7,7 +7,7 @@ import { type Cartesian } from '@technobuddha/library';
  * Common mappings: 'n'=north, 's'=south, 'e'=east, 'w'=west for square mazes.
  *
  * @group Geometry
- * @category Types
+ * @category Geometry
  */
 // prettier-ignore
 export type Direction =
@@ -20,7 +20,7 @@ export type Direction =
  * Complements Direction - when moving in direction 'n', facing becomes 'S'.
  *
  * @group Geometry
- * @category Types
+ * @category Geometry
  */
 // prettier-ignore
 export type Facing =
@@ -35,7 +35,7 @@ export type Facing =
  * @example "ew" - pillar at the intersection of east and west walls
  *
  * @group Geometry
- * @category Types
+ * @category Geometry
  */
 export type Pillar = `${Direction}${Direction}`;
 
@@ -45,7 +45,7 @@ export type Pillar = `${Direction}${Direction}`;
  * For example, hexagonal mazes might have full hexagons (kind 0) and partial hexagons (kind 1).
  *
  * @group Geometry
- * @category Types
+ * @category Geometry
  */
 export type Kind = number;
 
@@ -54,7 +54,7 @@ export type Kind = number;
  * Extends Cartesian coordinates with x,y properties representing grid position.
  *
  * @group Geometry
- * @category Types
+ * @category Geometry
  */
 export type Cell = Cartesian;
 
@@ -64,7 +64,7 @@ export type Cell = Cartesian;
  * Common in pathfinding and maze generation algorithms.
  *
  * @group Geometry
- * @category Types
+ * @category Geometry
  */
 export type CellDirection = Cell & {
   /** The direction associated with this cell */
@@ -77,7 +77,7 @@ export type CellDirection = Cell & {
  * Essential for navigation algorithms that need to track orientation.
  *
  * @group Geometry
- * @category Types
+ * @category Geometry
  */
 export type CellFacing = Cell & {
   /** The facing direction within this cell */
@@ -90,7 +90,7 @@ export type CellFacing = Cell & {
  * Used in advanced maze features like multi-level mazes or bridge connections.
  *
  * @group Geometry
- * @category Types
+ * @category Geometry
  */
 export type CellTunnel = CellDirection & {
   /** Whether this cell connection involves a tunnel */
@@ -103,7 +103,7 @@ export type CellTunnel = CellDirection & {
  * The facing indicates which direction leads into/out of the maze.
  *
  * @group Geometry
- * @category Types
+ * @category Geometry
  */
 export type Terminus = CellFacing;
 
@@ -113,7 +113,7 @@ export type Terminus = CellFacing;
  * Used by pathfinding algorithms and movement validation systems.
  *
  * @group Geometry
- * @category Types
+ * @category Geometry
  */
 export type Move = {
   /** The direction of movement */
@@ -130,7 +130,7 @@ export type Move = {
  * Used in matrix calculations to determine how to move between different cell positions.
  *
  * @group Geometry
- * @category Types
+ * @category Geometry
  */
 export type MoveOffset = Cartesian & {
   /** Optional vertical zone for multi-level maze movement */

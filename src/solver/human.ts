@@ -15,7 +15,7 @@ import { MazeSolver, type MazeSolverProperties } from './maze-solver.ts';
  * Configuration options for human solver behavior.
  *
  * @group Solver
- * @category Types
+ * @category Human
  */
 export type Options = {
   /** Whether to follow single paths to their final destination automatically */
@@ -32,7 +32,7 @@ export type Options = {
  * Extended cell information for human solver pathfinding.
  *
  * @group Solver
- * @category Types
+ * @category Human
  */
 export type CellPath = Cell & {
   /** Direction taken to reach this destination */
@@ -51,7 +51,7 @@ export type CellPath = Cell & {
  * Configuration properties for the Human maze solver.
  *
  * @group Solver
- * @category Properties
+ * @category Human
  */
 export type HumanProperties = MazeSolverProperties & {
   /** Optional behavior configuration settings */
@@ -82,7 +82,7 @@ export type HumanProperties = MazeSolverProperties & {
  * - x: Exit solver
  *
  * @group Solver
- * @category Algorithms
+ * @category Human
  */
 export class Human extends MazeSolver {
   /** Current behavior configuration options */

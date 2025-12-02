@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-conversion */
-import { type Matrix } from '../matrix.ts';
+import { type Matrix } from '../geometry/matrix.ts';
 
 /**
  * Matrix definition for pentagon-based maze geometry.
@@ -24,8 +24,8 @@ import { type Matrix } from '../matrix.ts';
  * The tessellation follows a 5×4 repeating pattern with specific offset positioning
  * to ensure proper geometric alignment and seamless tiling.
  *
- * @group Geometry
- * @category Constants
+ * @group Maze
+ * @category  Pentagon
  */
 export const pentagonMatrix: Matrix = {
   /** All twenty pentagon directions across the four cell kinds */
@@ -365,8 +365,8 @@ export const pentagonMatrix: Matrix = {
  * Row 4: [2, 3, 0, 1]
  * ```
  *
- * @group Geometry
- * @category Constants
+ * @group Maze
+ * @category  Pentagon
  */
 export const kindMatrix: number[][] = [
   [0, 1, 2, 3],
@@ -385,8 +385,8 @@ export const kindMatrix: number[][] = [
  * The offsets account for the irregular spacing required by the pentagon tessellation,
  * where cells don't align on a regular grid due to the 5-fold symmetry.
  *
- * @group Geometry
- * @category Constants
+ * @group Maze
+ * @category  Pentagon
  */
 export const offsetXMatrix = [
   [+0.0, +1.0, +2.5, +4.0],
@@ -405,8 +405,8 @@ export const offsetXMatrix = [
  * The pattern ensures that pentagon edges align properly with their neighbors,
  * maintaining the geometric constraints required for a valid tessellation.
  *
- * @group Geometry
- * @category Constants
+ * @group Maze
+ * @category  Pentagon
  */
 export const offsetYMatrix = [
   [+0.0, +0.0, +0.0, -0.5],

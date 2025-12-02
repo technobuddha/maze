@@ -6,7 +6,7 @@ import { MazeGenerator, type MazeGeneratorProperties } from './maze-generator.ts
  * Configuration properties for the Hunt and Kill maze generator.
  *
  * @group Generator
- * @category HuntAndKill
+ * @category Hunt And Kill
  */
 export type HuntAndKillProperties = MazeGeneratorProperties & {
   /** Order in which to scan cells during the hunt phase (defaults to 'top-left') */
@@ -40,7 +40,7 @@ export type HuntAndKillProperties = MazeGeneratorProperties & {
  * - Long passages characteristic of random walk algorithms
  *
  * @group Generator
- * @category HuntAndKill
+ * @category Hunt And Kill
  */
 export class HuntAndKill extends MazeGenerator {
   private readonly huntMethod: AllOrder;

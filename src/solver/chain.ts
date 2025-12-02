@@ -12,7 +12,7 @@ import { Roboto, type RobotoProperties } from './roboto.ts';
  * then follows this chain while deploying robots to find paths around blocked sections.
  *
  * @group Solver
- * @category Algorithms
+ * @category  Chain
  */
 export type ChainProperties = Omit<RobotoProperties, 'robots'> & {
   /** Direction preference for robot turns when navigating obstacles */
@@ -35,7 +35,7 @@ export type ChainProperties = Omit<RobotoProperties, 'robots'> & {
  * to find alternative paths that reconnect to the chain further ahead.
  *
  * @group Solver
- * @category Algorithms
+ * @category  Chain
  */
 export class Chain extends Roboto {
   /** Color used for rendering the current avatar position */

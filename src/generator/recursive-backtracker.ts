@@ -6,7 +6,7 @@ import { MazeGenerator, type MazeGeneratorProperties, type Strategy } from './ma
  * Configuration properties for the Recursive Backtracker maze generator.
  *
  * @group Generator
- * @category RecursiveBacktracker
+ * @category Recursive Backtracker
  */
 export type RecursiveBacktrackerProperties = MazeGeneratorProperties & {
   /** Number of parallel players to use for generation (defaults to number of strategies or 1) */
@@ -43,7 +43,7 @@ export type RecursiveBacktrackerProperties = MazeGeneratorProperties & {
  * - Creates mazes with long, winding passages characteristic of DFS
  *
  * @group Generator
- * @category RecursiveBacktracker
+ * @category Recursive Backtracker
  */
 export class RecursiveBacktracker extends MazeGenerator {
   private readonly parallel: number;

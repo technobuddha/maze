@@ -10,7 +10,7 @@
  * - 'refresh': Special mode that triggers a complete restart
  *
  * @group Runner
- * @category Types
+ * @category  Play Mode
  */
 export const playModes = ['pause', 'step', 'play', 'fast', 'instant', 'refresh'] as const;
 
@@ -21,6 +21,6 @@ export const playModes = ['pause', 'step', 'play', 'fast', 'instant', 'refresh']
  * controlling maze runner playback speed and behavior throughout the system.
  *
  * @group Runner
- * @category Types
+ * @category  Play Mode
  */
 export type PlayMode = (typeof playModes)[number];

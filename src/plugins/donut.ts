@@ -17,7 +17,7 @@ import { type Maze } from '../geometry/index.ts';
  * @param maze - The maze instance to apply the donut shape to
  *
  * @group Plugin
- * @category Shape
+ * @category Donut
  */
 export function donutPlugin(maze: Maze): void {
   const rx = Math.floor(maze.width / 2) + 1;

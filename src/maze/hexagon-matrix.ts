@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-conversion */
-import { type Matrix } from '../matrix.ts';
+import { type Matrix } from '../geometry/matrix.ts';
 
 /**
  * Matrix configuration for the hexagon maze implementation.
@@ -9,8 +9,8 @@ import { type Matrix } from '../matrix.ts';
  * two cell kinds (even and odd columns) to create proper hexagonal tessellation
  * with alternating row offsets.
  *
- * @group Geometry
- * @category Mazes
+ * @group Maze
+ * @category Hexagon
  */
 export const hexagonMatrix: Matrix = {
   /**

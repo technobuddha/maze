@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/switch-exhaustiveness-check */
 import { type Cartesian, modulo, type Rect } from '@technobuddha/library';
 
-import { type Cell, type Direction, type Kind, type Pillar } from '../geometry.ts';
-import { type DrawingSizes, Maze, type MazeProperties } from '../maze.ts';
+import { type Cell, type Direction, type Kind, type Pillar } from '../geometry/geometry.ts';
+import { type DrawingSizes, Maze, type MazeProperties } from '../geometry/maze.ts';
 
 import { wedgeMatrix } from './wedge-matrix.ts';
 

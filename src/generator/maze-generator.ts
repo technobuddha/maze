@@ -434,7 +434,7 @@ export abstract class MazeGenerator extends Random {
       const target = deadEnds.length - Math.floor(this.braiding * deadEnds.length);
 
       while (deadEnds.length > target) {
-        const index = this.randomNumber(deadEnds.length);
+        const index = this.randomIndex(deadEnds)!;
         const cell = deadEnds[index];
 
         deadEnds.splice(index, 1);

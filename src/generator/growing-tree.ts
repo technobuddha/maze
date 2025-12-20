@@ -124,7 +124,7 @@ export class GrowingTree extends MazeGenerator {
       }
       case 'random':
       default: {
-        return this.randomNumber(this.list.length);
+        return this.randomIndex(this.list)!;
       }
     }
   }

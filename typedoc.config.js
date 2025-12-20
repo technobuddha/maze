@@ -3,7 +3,7 @@
 // 🚨
 //@ts-check
 
-/** @type {import('typedoc').TypeDocOptions} */
+/** @type import('typedoc').TypeDocOptions */
 const config = {
 // typedoc
   // Configuration

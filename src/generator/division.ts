@@ -210,7 +210,7 @@ export class Division extends MazeGenerator {
       const frontier = [seedA, seedB];
 
       while (frontier.length > 0) {
-        const index = this.randomNumber(frontier.length);
+        const index = this.randomIndex(frontier)!;
         const cell = frontier[index];
 
         const neighbors = this.maze
@@ -235,7 +235,8 @@ export class Division extends MazeGenerator {
             .filter(({ target }) => region.subregions[target.x][target.y] === 'b'),
         );
 
-      boundary.splice(this.randomNumber(boundary.length), 1);
+      const index = this.randomIndex(boundary)!;
+      boundary.splice(index, 1);
 
       for (const cd of boundary) {
         this.maze.addWall(cd.target, this.maze.opposite(cd.target.facing));

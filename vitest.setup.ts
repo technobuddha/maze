@@ -29,7 +29,7 @@ if (import.meta.env.MODE === 'full') {
           file.name !== 'tsconfig.json' &&
           file.name !== 'tsdoc.json'
         ) {
-          await fs.readFile(`./fixtures/${file.name}`, 'utf8').then((json) => {
+          await fs.readFile(`./fixtures/${file.name}`, 'utf-8').then((json) => {
             globalFixtures.fixtures![path.parse(file.name).name] = JSON.parse(json);
           });
         }

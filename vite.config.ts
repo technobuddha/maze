@@ -1,9 +1,11 @@
 // 🚨
 // 🚨 CHANGES TO THIS FILE WILL BE OVERRIDDEN
 // 🚨
+import tsconfigPaths from 'vite-tsconfig-paths';
 import { coverageConfigDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig(() => ({
+  plugins: [tsconfigPaths()],
   test: {
     setupFiles: ['./vitest.setup.ts'],
     root: './src',
@@ -29,6 +31,7 @@ export default defineConfig(() => ({
         '**/@types',
         '**/@data',
         ...coverageConfigDefaults.exclude,
+        
       ],
     },
   },

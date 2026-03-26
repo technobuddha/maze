@@ -17,10 +17,10 @@ import Color from 'colorjs.io';
  */
 export function inverse(color: string): string {
   const c = new Color(color);
-  if (c.oklch.c + 0 === 0) {
-    c.oklch.l = 1 - c.oklch.l;
+  if ((c.oklch.c ?? 0) === 0) {
+    c.oklch.l = 1 - (c.oklch.l ?? 0);
   } else {
-    c.oklch.h = modulo(c.oklch.hue + 180, 360);
+    c.oklch.h = modulo((c.oklch.hue ?? 0) + 180, 360);
   }
   return c.toString();
 }

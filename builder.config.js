@@ -1,6 +1,6 @@
 //@ts-check
 
-/** @type {import('@technobuddha/builder').Builds} */
+/** @type {import('@technobuddha/project/build').Builds} */
 const config = {
   dev: {
     watch: true,
@@ -13,7 +13,7 @@ const config = {
       {
         name: 'Maze',
         directory: './src',
-        command: 'tsc --build ./src',
+        command: 'npx tsc --build ./src',
       },
     ],
   },
@@ -25,7 +25,7 @@ const config = {
       },
       {
         name: 'Maze',
-        command: 'tsc --build ./src',
+        command: 'npx tsc --build ./src',
       },
     ]
   },
@@ -37,7 +37,7 @@ const config = {
       },
       {
         name: 'Maze',
-        command: 'tsc --build ./src',
+        command: 'npx tsc --build ./src',
       },
       {
         name: 'Version',

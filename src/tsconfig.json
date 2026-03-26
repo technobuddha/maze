@@ -12,5 +12,5 @@
     "outDir": "../dist"
   },
   "include": ["**/*.ts"],
-  "exclude": []
+  "exclude": ["eslint.config.js"]
 }

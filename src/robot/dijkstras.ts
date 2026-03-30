@@ -109,7 +109,7 @@ export class DijkstrasRobot extends Robot {
     this.avatarColor = avatarColor;
     this.prunedColor = prunedColor;
 
-    this.scanned = create2dArray<boolean>(maze.width, maze.height, false);
+    this.scanned = create2dArray(maze.width, maze.height, false);
     this.journal = create2dArray<Journal>(this.maze.width, this.maze.height, () => ({
       distance: Infinity,
     }));

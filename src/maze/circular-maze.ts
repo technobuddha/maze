@@ -228,12 +228,11 @@ export class CircularMaze extends Maze {
     const zoneA = { ...a, x: (a.x * zone) / this.zones[a.y] };
     const zoneB = { ...b, x: (b.x * zone) / this.zones[b.y] };
 
-    const distances: number[] = [manhattanDistance(zoneA, zoneB)];
-
-    distances.push(
+    const distances: number[] = [
+      manhattanDistance(zoneA, zoneB),
       manhattanDistance({ ...zoneA, x: zoneA.x + this.width }, { ...zoneB, x: zoneB.x }),
       manhattanDistance({ ...zoneA, x: zoneA.x - this.width }, { ...zoneB, x: zoneB.x }),
-    );
+    ];
 
     return Math.min(...distances);
   }

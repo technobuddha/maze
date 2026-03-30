@@ -127,7 +127,6 @@ export class Human extends MazeSolver {
    * @returns The keyboard event handler function
    */
   private initializeKeyboardHandler(): (event: KeyboardEvent) => void {
-    // eslint-disable-next-line unicorn/consistent-function-scoping
     const handler = (event: KeyboardEvent): void => {
       this.eventTarget.dispatchEvent(new CustomEvent('keydown', { detail: event.key }));
     };

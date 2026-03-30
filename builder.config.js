@@ -2,9 +2,7 @@
 
 /** @type {import('@technobuddha/project/build').Builds} */
 const config = {
-  dev: {
-    watch: true,
-
+  default: {
     steps: [
       {
         name: 'Clean',
@@ -12,33 +10,13 @@ const config = {
       },
       {
         name: 'Maze',
-        directory: './src',
         command: 'npx tsc --build ./src',
       },
     ],
   },
-  prod: {
-    steps: [
-      {
-        name: 'Clean',
-        command: 'rm -rf ./dist',
-      },
-      {
-        name: 'Maze',
-        command: 'npx tsc --build ./src',
-      },
-    ]
-  },
   publish: {
     steps: [
-      {
-        name: 'Clean',
-        command: 'rm -rf ./dist',
-      },
-      {
-        name: 'Maze',
-        command: 'npx tsc --build ./src',
-      },
+      { build: 'default' },
       {
         name: 'Version',
         command: 'yarn version patch',

@@ -87,7 +87,7 @@ export class PledgeRobot extends Robot {
    *
    * @param props - Configuration including turn direction and robot properties
    */
-  public constructor({ turn = 'right', ...props }: PledgeRobotProperties) {
+  public constructor({ turn, ...props }: PledgeRobotProperties) {
     const program = turn === 'right' ? 'right-turn' : 'left-turn';
     super({ program, ...props });
 

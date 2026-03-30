@@ -51,7 +51,7 @@ export class WallWalkingRobot extends Robot {
    *
    * @param props - Configuration including turn direction and robot properties
    */
-  public constructor({ turn = 'right', ...props }: WallWalkingRobotProperties) {
+  public constructor({ turn, ...props }: WallWalkingRobotProperties) {
     const program = turn === 'right' ? 'right-wall' : 'left-wall';
     super({ program, ...props });
     this.visits = create2dArray(this.maze.width, this.maze.height, 0);

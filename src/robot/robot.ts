@@ -82,7 +82,7 @@ export abstract class Robot extends Random implements Disposable {
 
   public constructor({
     maze,
-    location = maze.entrance,
+    location,
     color = maze.color.avatar,
     trails = 0,
     showPath = false,

@@ -378,8 +378,7 @@ export abstract class Maze extends MazeGeometry {
   } {
     const distances = create2dArray(this.width, this.height, Infinity);
     const loops: Loop[] = [];
-    const queue: Cell[] = [];
-    queue.unshift(entrance);
+    const queue: Cell[] = [entrance];
 
     distances[entrance.x][entrance.y] = 0;
 
@@ -1268,7 +1267,7 @@ export abstract class Maze extends MazeGeometry {
    * @returns The canvas element with the rendered maze
    */
   public export({
-    canvas = document.createElement('canvas'),
+    canvas,
     showSolution = false,
     transparentBackground = false,
     showDistances = this.showDistances,

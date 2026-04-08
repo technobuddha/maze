@@ -3,7 +3,7 @@
 const config = {
   directories: {
     'src': {
-      environment: 'browser',
+      platform: 'browser',
     },
   },
   npm: {

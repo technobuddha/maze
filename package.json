@@ -1,12 +1,15 @@
 {
   "name": "@technobuddha/maze",
-  "version": "0.1.7",
   "description": "Maze generation and solving library.",
+  "version": "0.1.7",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
   "author": {
     "name": "Phil Hill",
     "email": "phil@technobuddha.com"
   },
-  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/technobuddha/maze"
@@ -15,24 +18,11 @@
     "url": "https://github.com/technobuddha/maze/issues"
   },
   "homepage": "https://github.com/technobuddha/maze#readme",
-  "type": "module",
-  "main": "src/index.js",
-  "types": "src/index.d.ts",
-  "engines": {
-    "node": ">=25.0.0"
-  },
-  "packageManager": "yarn@4.12.0",
-  "dependencies": {
-    "colorjs.io": "0.6.1"
-  },
-  "devDependencies": {
-    "@technobuddha/project": "0.1.0-461"
-  },
   "scripts": {
     "dev": "build dev",
     "build": "build default",
     "lint": "npx eslint src",
-    "spell": "npx cspell src",
+    "spell": "npx cspell lint src",
     "start": "build dev",
     "publish": "build publish",
     "test": "npx vitest --typecheck run",
@@ -40,7 +30,18 @@
     "test:full": "npx vitest --typecheck --mode=full run",
     "preinstall": "git config core.hooksPath git-hooks"
   },
+  "dependencies": {
+    "@technobuddha/library": "2.1.0-102",
+    "colorjs.io": "0.6.1"
+  },
+  "devDependencies": {
+    "@technobuddha/project": "0.1.0-507"
+  },
+  "engines": {
+    "node": ">=25.0.0"
+  },
   "technobuddhaProject": {
     "created": "2025-09-01T21:21:26.150Z"
-  }
+  },
+  "packageManager": "yarn@4.12.0"
 }

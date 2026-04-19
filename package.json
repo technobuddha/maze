@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@technobuddha/maze",
   "description": "Maze generation and solving library.",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "license": "MIT",
   "type": "module",
   "types": "src/index.d.ts",
@@ -32,11 +32,15 @@
     "preinstall": "git config core.hooksPath git-hooks"
   },
   "dependencies": {
-    "@technobuddha/library": "2.1.0-102",
+    "@technobuddha/library": "2.1.0-111",
     "colorjs.io": "0.6.1"
   },
   "devDependencies": {
-    "@technobuddha/project": "0.1.0-512"
+    "@technobuddha/project": "1.0.0-5",
+    "@types/node": "25.6.0",
+    "cspell": "10.0.0",
+    "tsx": "4.21.0",
+    "typescript": "6.0.3"
   },
   "engines": {
     "node": ">=25.0.0"

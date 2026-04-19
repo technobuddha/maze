@@ -1,4 +1,4 @@
-import { animate } from '@technobuddha/library/browser';
+import { animate } from '@technobuddha/library';
 
 import { type Drawing } from '../drawing/index.ts';
 import { type MazeGenerator, type MazeGeneratorProperties } from '../generator/index.ts';

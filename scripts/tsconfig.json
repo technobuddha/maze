@@ -5,11 +5,10 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
+    "lib": ["esnext"],
     "noEmit": true,
     "rewriteRelativeImportExtensions": false,
-    "composite": true,
-    "types": ["node"],
-    "lib": ["esnext"]
+    "types": ["node"]
   },
   "include": ["*.ts"],
   "exclude": ["eslint.config.js"]

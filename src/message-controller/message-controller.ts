@@ -1,5 +1,4 @@
-import { Random, type RandomProperties } from '@technobuddha/library';
-import { CustomEventTarget } from '@technobuddha/library/common';
+import { CustomEventTarget, Random, type RandomProperties } from '@technobuddha/library';
 
 /**
  * Configuration options for message display and styling.

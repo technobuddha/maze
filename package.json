@@ -1,43 +1,53 @@
 {
+  "$schema": "https://json.schemastore.org/package.json",
   "name": "@technobuddha/maze",
-  "version": "0.1.0",
   "description": "Maze generation and solving library.",
+  "version": "0.2.0-1",
+  "license": "MIT",
+  "type": "module",
+  "types": "src/index.d.ts",
+  "main": "src/index.js",
   "author": {
     "name": "Phil Hill",
     "email": "phil@technobuddha.com"
   },
-  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/technobuddha/maze"
   },
+  "homepage": "https://github.com/technobuddha/maze#readme",
   "bugs": {
     "url": "https://github.com/technobuddha/maze/issues"
   },
-  "homepage": "https://github.com/technobuddha/maze#readme",
-  "type": "module",
-  "main": "src/index.js",
-  "types": "src/index.d.ts",
-  "engines": {
-    "node": ">=24.0.0"
+  "scripts": {
+    "dev": "build dev",
+    "build": "build default",
+    "lint": "npx eslint src",
+    "spell": "npx cspell lint src",
+    "start": "build dev",
+    "publish": "build publish",
+    "test": "npx vitest --typecheck run",
+    "test:watch": "npx vitest --typecheck --no-coverage watch",
+    "test:full": "npx vitest --typecheck --mode=full run",
+    "preinstall": "git config core.hooksPath git-hooks"
   },
-  "packageManager": "yarn@4.9.4",
   "dependencies": {
-    "@technobuddha/library": "2.0.0",
-    "colorjs.io": "0.5.2"
+    "@technobuddha/library": "2.1.0-111",
+    "colorjs.io": "0.6.1"
   },
   "devDependencies": {
-    "@technobuddha/project": "0.99.21",
-    "typedoc": "0.28.12"
+    "@technobuddha/project": "1.0.0-8",
+    "@types/node": "25.6.0",
+    "cspell": "10.0.0",
+    "tsx": "4.21.0",
+    "typescript": "6.0.3"
   },
-  "scripts": {
-    "build": "tsc -p src",
-    "lint": "npx eslint src",
-    "spell": "npx cspell src"
+  "engines": {
+    "node": ">=25.0.0"
   },
   "technobuddhaProject": {
-    "version": "0.99.21",
-    "created": "2025-09-01T21:21:26.150Z",
-    "updated": "2025-09-12T13:57:33.120Z"
-  }
+    "created": "2025-09-01T21:21:26.150Z"
+  },
+  "packageManager": "yarn@4.12.0",
+  "stableVersion": "0.1.10"
 }

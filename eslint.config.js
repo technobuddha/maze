@@ -1,21 +1,7 @@
-// @ts-check
 // 🚨
 // 🚨 CHANGES TO THIS FILE WILL BE OVERRIDDEN
 // 🚨
-import { app } from '@technobuddha/project';
+// @ts-check
+import { lint } from '@technobuddha/project';
 
-// eslint-disable-next-line tsdoc/syntax
-/** @type {import('eslint').Linter.Config[]} */
-const config = [
-  // src/tsconfig.json
-  app.lint({
-    files: ['src/**/*.ts'],
-    ignores: [],
-    environment: 'browser',
-    tsConfig: 'src/tsconfig.json',
-  }),
-  // tsconfig.json
-  app.lint({ files: ['*.config.js'], ignores: [], environment: 'node' }),
-];
-
-export default config;
+export default lint({ files: ['*.config.js'], platform: 'node' });

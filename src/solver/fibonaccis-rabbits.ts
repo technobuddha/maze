@@ -4,29 +4,80 @@ import { type CellFacing } from '../geometry/index.ts';
 
 import { MazeSolver, type MazeSolverProperties } from './maze-solver.ts';
 
+/**
+ * Represents a single rabbit in the Fibonacci maze solving algorithm.
+ *
+ * Each rabbit maintains its position, age, movement history, and previous location
+ * to prevent immediate backtracking.
+ *
+ * @group Solver
+ * @category  Fibonaccis Rabbits
+ */
 type Rabbit = {
+  /** Current position and facing direction of the rabbit */
   cell: CellFacing;
+  /** Age of the rabbit in generations (used for reproduction and lifespan) */
   age: number;
+  /** Previous position to prevent immediate backtracking */
   tail: CellFacing;
+  /** Complete movement history for solution reconstruction */
   history: CellFacing[];
 };
 
+/**
+ * Configuration properties for the Fibonacci's Rabbits maze solver.
+ *
+ * @group Solver
+ * @category  Fibonaccis Rabbits
+ */
 export type FibonaccisRabbitsProperties = MazeSolverProperties & {
+  /** Maximum age a rabbit can reach before dying (in generations) */
   readonly lifeSpan?: number;
+  /** Age at which rabbits become fertile and reproduce */
   readonly gestationPeriod?: number;
+  /** Maximum number of rabbits allowed per cell to prevent overcrowding */
   readonly populationLimit?: number;
+  /** Color for rendering individual rabbits */
   readonly rabbitColor?: string;
+  /** Color for rendering groups of rabbits (fluffle) */
   readonly fluffleColor?: string;
 };
 
+/**
+ * Fibonacci's Rabbits maze solver using population-based exploration.
+ *
+ * This algorithm simulates rabbit reproduction following Fibonacci sequence patterns.
+ * Rabbits explore the maze randomly, reproduce at regular intervals, and die of old age.
+ * The population dynamics create emergent pathfinding behavior through parallel exploration.
+ *
+ * Key behaviors:
+ * - Rabbits reproduce every `gestationPeriod` generations after reaching maturity
+ * - Rabbits die after reaching `lifeSpan` generations
+ * - Overpopulation is controlled by `populationLimit` per cell
+ * - Random movement with backtracking prevention
+ *
+ * @group Solver
+ * @category  Fibonaccis Rabbits
+ */
 export class FibonaccisRabbits extends MazeSolver {
+  /** Maximum age a rabbit can reach before dying */
   protected readonly lifeSpan: NonNullable<FibonaccisRabbitsProperties['lifeSpan']>;
+  /** Age at which rabbits become fertile and reproduce */
   protected readonly gestationPeriod: NonNullable<FibonaccisRabbitsProperties['gestationPeriod']>;
+  /** Maximum number of rabbits allowed per cell */
   protected readonly populationLimit: NonNullable<FibonaccisRabbitsProperties['populationLimit']>;
+  /** Color for rendering individual rabbits */
   protected readonly rabbitColor: NonNullable<FibonaccisRabbitsProperties['rabbitColor']>;
+  /** Color for rendering groups of rabbits */
   protected readonly fluffleColor: NonNullable<FibonaccisRabbitsProperties['fluffleColor']>;
+  /** Peak rabbit population reached during solving */
   protected maxRabbits = 0;
 
+  /**
+   * Creates a new Fibonacci's Rabbits solver with population parameters.
+   *
+   * @param props - Configuration including lifespan, reproduction, and visual settings
+   */
   public constructor({
     lifeSpan = 100,
     gestationPeriod = 20,
@@ -43,6 +94,22 @@ export class FibonaccisRabbits extends MazeSolver {
     this.fluffleColor = fluffleColor;
   }
 
+  /**
+   * Solves the maze using Fibonacci rabbit population dynamics.
+   *
+   * Simulates rabbit reproduction and exploration where:
+   * 1. Rabbits age each generation and reproduce at intervals
+   * 2. Old rabbits die after reaching lifespan
+   * 3. Rabbits move randomly while avoiding immediate backtracking
+   * 4. Overpopulation is controlled by culling excess rabbits
+   * 5. Solution is found when any rabbit reaches the exit
+   *
+   * The algorithm visualizes population density using different colors for
+   * individual rabbits vs groups (fluffles).
+   *
+   * @param options - Optional entrance and exit override points
+   * @yields After each generation for population visualization
+   */
   public async *solve({
     entrance = this.maze.entrance,
     exit = this.maze.exit,

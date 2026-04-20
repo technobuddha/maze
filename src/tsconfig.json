@@ -2,14 +2,15 @@
 // 🚨 CHANGES TO THIS FILE WILL BE OVERRIDDEN
 // 🚨
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
-    "types": [],
     "lib": ["esnext", "dom"],
+    "outDir": "../dist",
     "rootDir": ".",
-    "outDir": "../dist"
+    "types": []
   },
-  "extends": "../tsconfig.base.json",
   "include": ["**/*.ts"],
-  "exclude": []
+  "exclude": ["eslint.config.js"]
 }

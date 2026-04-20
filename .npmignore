@@ -1,9 +1,28 @@
+# 🚨
+# 🚨 CHANGES TO THIS FILE WILL BE OVERRIDDEN
+# 🚨
+node_modules/
 .cspell/
 .vscode/
 .yarn/
-doc/
 .editorconfig
+.gitattributes
+.gitignore
 .prettierignore
-cspell.json
+.yarnrc
 *.config.*
+*.setup.*
+*.tgz
+
+scripts/
+TODO
+AGENTS.md
+
+logs/
+*.log
 *.tsbuildinfo
+coverage
+*.lcov
+
+# Project Ignore
+diagrams

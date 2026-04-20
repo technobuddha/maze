@@ -1,17 +1,14 @@
 //@ts-check
-// eslint-disable-next-line tsdoc/syntax
-/** @type {import("@technobuddha/project").TechnobuddhaConfig} */
+/** @type import("@technobuddha/project").TechnobuddhaConfig */
 const config = {
   directories: {
-    '.': {
-      tsconfig: {
-        references: ['./src'],
-      },
-    },
     'src': {
-      environment: 'browser',
+      platform: 'browser',
     },
   },
+  npm: {
+    ignore: ['diagrams'],
+  }
 };
 
 export default config;

@@ -3,10 +3,11 @@
   "name": "@technobuddha/maze",
   "description": "Maze generation and solving library.",
   "version": "0.2.0-1",
+  "stableVersion": "0.1.10",
   "license": "MIT",
+  "main": "src/index.js",
   "type": "module",
   "types": "src/index.d.ts",
-  "main": "src/index.js",
   "author": {
     "name": "Phil Hill",
     "email": "phil@technobuddha.com"
@@ -29,16 +30,17 @@
     "test": "npx vitest --typecheck run",
     "test:watch": "npx vitest --typecheck --no-coverage watch",
     "test:full": "npx vitest --typecheck --mode=full run",
-    "preinstall": "git config core.hooksPath git-hooks"
+    "prepare": "npx husky"
   },
   "dependencies": {
-    "@technobuddha/library": "2.1.0-111",
+    "@technobuddha/library": "2.1.0-112",
     "colorjs.io": "0.6.1"
   },
   "devDependencies": {
-    "@technobuddha/project": "1.0.0-8",
+    "@technobuddha/project": "1.0.0-24",
     "@types/node": "25.6.0",
     "cspell": "10.0.0",
+    "husky": "9.1.7",
     "tsx": "4.21.0",
     "typescript": "6.0.3"
   },
@@ -48,6 +50,5 @@
   "technobuddhaProject": {
     "created": "2025-09-01T21:21:26.150Z"
   },
-  "packageManager": "yarn@4.12.0",
-  "stableVersion": "0.1.10"
+  "packageManager": "yarn@4.12.0"
 }

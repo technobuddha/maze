@@ -41,9 +41,9 @@ export class Chain extends Roboto {
   /** Color used for rendering the current avatar position */
   private readonly avatarColor: NonNullable<ChainProperties['avatarColor']>;
   /** Color used for rendering the solution path */
-  private readonly pathColor: NonNullable<ChainProperties['avatarColor']>;
+  private readonly pathColor: NonNullable<ChainProperties['pathColor']>;
   /** Color used for rendering the chain links */
-  private readonly chainColor: NonNullable<ChainProperties['avatarColor']>;
+  private readonly chainColor: NonNullable<ChainProperties['chainColor']>;
 
   /** Current position and facing direction in the maze */
   private current: CellFacing = this.maze.entrance;

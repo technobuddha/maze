@@ -2,11 +2,11 @@
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@technobuddha/maze",
   "description": "Maze generation and solving library.",
-  "version": "0.2.0-1",
+  "version": "0.2.0-2",
   "stableVersion": "0.1.10",
   "license": "MIT",
-  "main": "src/index.js",
   "type": "module",
+  "main": "src/index.js",
   "types": "src/index.d.ts",
   "author": {
     "name": "Phil Hill",
@@ -33,11 +33,11 @@
     "prepare": "npx husky"
   },
   "dependencies": {
-    "@technobuddha/library": "2.1.0-112",
+    "@technobuddha/library": "2.1.0-115",
     "colorjs.io": "0.6.1"
   },
   "devDependencies": {
-    "@technobuddha/project": "1.0.0-24",
+    "@technobuddha/project": "1.0.0-31",
     "@types/node": "25.6.0",
     "cspell": "10.0.0",
     "husky": "9.1.7",

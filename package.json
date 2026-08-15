@@ -1,16 +1,16 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@technobuddha/maze",
+  "version": "0.2.0-3",
   "description": "Maze generation and solving library.",
-  "version": "0.2.0-2",
-  "stableVersion": "0.1.10",
   "license": "MIT",
   "type": "module",
   "main": "src/index.js",
   "types": "src/index.d.ts",
   "author": {
     "name": "Phil Hill",
-    "email": "phil@technobuddha.com"
+    "email": "phil@technobuddha.com",
+    "url": "https://technobuddha.com"
   },
   "repository": {
     "type": "git",
@@ -30,18 +30,19 @@
     "test": "npx vitest --typecheck run",
     "test:watch": "npx vitest --typecheck --no-coverage watch",
     "test:full": "npx vitest --typecheck --mode=full run",
-    "prepare": "npx husky"
+    "prepare": "husky"
   },
   "dependencies": {
-    "@technobuddha/library": "2.1.0-115",
+    "@technobuddha/library": "2.1.0-179",
     "colorjs.io": "0.6.1"
   },
   "devDependencies": {
-    "@technobuddha/project": "1.0.0-31",
-    "@types/node": "25.6.0",
-    "cspell": "10.0.0",
+    "@cspell/cspell-types": "10.0.1",
+    "@technobuddha/project": "1.0.0-178",
+    "@types/node": "26.2.0",
+    "cspell": "10.0.1",
     "husky": "9.1.7",
-    "tsx": "4.21.0",
+    "tsx": "4.23.12",
     "typescript": "6.0.3"
   },
   "engines": {
@@ -50,5 +51,5 @@
   "technobuddhaProject": {
     "created": "2025-09-01T21:21:26.150Z"
   },
-  "packageManager": "yarn@4.12.0"
+  "packageManager": "yarn@4.18.0"
 }

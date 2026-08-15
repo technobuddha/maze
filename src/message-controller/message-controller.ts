@@ -22,7 +22,7 @@ export type MessageOptions = {
  * @group  Message Controller
  * @category  Message Controller
  */
-export type MessageCallback = (message: string, options: MessageOptions) => void;
+export type MessageCallback = (args: { message: string } & MessageOptions) => void;
 
 /**
  * Configuration properties for MessageController instances.
@@ -76,8 +76,6 @@ type Events = {
 export abstract class MessageController extends Random {
   /** Internal event target for message communication */
   private readonly eventTarget = new CustomEventTarget<Events>();
-  /** WeakMap tracking callback to handler mappings for cleanup */
-  private readonly handlers = new WeakMap<MessageCallback, (event: CustomEvent<Payload>) => void>();
 
   /**
    * Sends a message to all registered listeners.
@@ -102,13 +100,7 @@ export abstract class MessageController extends Random {
    * @param callback - Function to call when messages are received
    */
   public listenMessages(callback: MessageCallback): void {
-    const handler = (event: CustomEvent<Payload>): void => {
-      const { message, ...options } = event.detail;
-      callback(message, options);
-    };
-
-    this.handlers.set(callback, handler);
-    this.eventTarget.addEventListener('message', handler);
+    this.eventTarget.addEventListener('message', callback);
   }
 
   /**
@@ -120,10 +112,6 @@ export abstract class MessageController extends Random {
    * @param callback - The callback function to remove
    */
   public ignoreMessages(callback: MessageCallback): void {
-    const handler = this.handlers.get(callback);
-    if (handler) {
-      this.eventTarget.removeEventListener('message', handler);
-      this.handlers.delete(callback);
-    }
+    this.eventTarget.removeEventListener('message', callback);
   }
 }

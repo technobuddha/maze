@@ -1,4 +1,4 @@
-import { JSONSet, modulo, Random, type RandomProperties } from '@technobuddha/library';
+import { modulo, Random, type RandomProperties, SerializedSet } from '@technobuddha/library';
 
 import {
   type Cell,
@@ -17,13 +17,7 @@ import { type MessageOptions } from '../message-controller/index.ts';
  * @category  Robot
  */
 export type Program =
-  | 'random'
-  | 'seek'
-  | 'straight'
-  | 'left-turn'
-  | 'right-turn'
-  | 'right-wall'
-  | 'left-wall';
+  'random' | 'seek' | 'straight' | 'left-turn' | 'right-turn' | 'right-wall' | 'left-wall';
 
 /**
  * Configuration properties for robot initialization.
@@ -76,7 +70,7 @@ export abstract class Robot extends Random implements Disposable {
   protected drawCell: (cell: Cell, color?: string) => void;
   protected avatar: (cell: Cell, color: string) => void;
   protected bias = true;
-  protected pathSet = new JSONSet<CellTunnel>();
+  protected pathSet = new SerializedSet<CellTunnel>();
 
   private seekingWall = true;
 
@@ -154,7 +148,7 @@ export abstract class Robot extends Random implements Disposable {
    */
   protected drawPath(): void {
     if (this.showPath) {
-      const currentPathSet = new JSONSet<CellTunnel>(this.maze.makePath(this.path()));
+      const currentPathSet = new SerializedSet<CellTunnel>(this.maze.makePath(this.path()));
 
       for (const path of this.pathSet.difference(currentPathSet)) {
         this.drawCell(path);

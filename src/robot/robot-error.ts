@@ -24,6 +24,7 @@ export class RobotError extends Error {
    * @param message - Descriptive error message explaining what went wrong
    * @param color - Optional color identifier for visual error reporting
    */
+  // eslint-disable-next-line unicorn/custom-error-definition
   public constructor(message: string, color?: string) {
     super(message);
     this.color = color;

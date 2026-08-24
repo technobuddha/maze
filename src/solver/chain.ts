@@ -175,7 +175,7 @@ export class Chain extends Roboto {
       yield;
       const closest = this.maze
         .moves(link, { wall: 'all' })
-        .filter(({ target }) => !this.chain.some((c) => this.maze.isSame(c, target)))
+        .filter(({ target }) => this.chain.every((c) => !this.maze.isSame(c, target)))
         .map((m) => ({
           move: m,
           distance: this.maze.manhattanDistance(m.target, this.maze.exit),

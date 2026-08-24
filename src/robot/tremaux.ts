@@ -82,7 +82,7 @@ export class TremauxRobot extends Robot {
       this.maze.height,
       (x, y) =>
         Object.fromEntries(
-          Object.entries(this.maze.nexus({ x: x, y: y }).walls).map(([k]) => [k as Direction, 0]),
+          Object.keys(this.maze.nexus({ x: x, y: y }).walls).map((k) => [k as Direction, 0]),
         ) as Record<Direction, number>,
     );
 

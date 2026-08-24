@@ -150,7 +150,7 @@ export class Nexus {
    * @returns True if this cell type supports walls in the given direction
    */
   public hasWall(direction: Direction): boolean {
-    return direction in this.walls;
+    return Object.hasOwn(this.walls, direction);
   }
 
   /**
@@ -159,7 +159,7 @@ export class Nexus {
    * @throws Error if the direction is not valid for this cell type
    */
   public addWall(direction: Direction): void {
-    if (direction in this.walls) {
+    if (Object.hasOwn(this.walls, direction)) {
       this.walls[direction] = true;
     } else {
       throw new Error(`Invalid wall: ${direction}`);
@@ -172,7 +172,7 @@ export class Nexus {
    * @throws Error if the direction is not valid for this cell type
    */
   public removeWall(direction: Direction): void {
-    if (direction in this.walls) {
+    if (Object.hasOwn(this.walls, direction)) {
       this.walls[direction] = false;
     } else {
       throw new Error(`Invalid wall: ${direction}`);
@@ -185,7 +185,7 @@ export class Nexus {
    * @param direction - The direction to erect the barrier
    */
   public erectBarrier(direction: Direction): void {
-    if (direction in this.walls) {
+    if (Object.hasOwn(this.walls, direction)) {
       delete this.walls[direction];
     }
     this.barriers[direction] = true;

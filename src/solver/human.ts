@@ -85,6 +85,12 @@ export type HumanProperties = MazeSolverProperties & {
  * @category Human
  */
 export class Human extends MazeSolver {
+  /** Event target for keyboard event handling */
+  private readonly eventTarget = new EventTarget();
+
+  /** Keyboard event handler function for capturing user input */
+  private readonly keyHandler: (event: KeyboardEvent) => void;
+
   /** Current behavior configuration options */
   public options: Options;
 
@@ -92,9 +98,6 @@ export class Human extends MazeSolver {
   protected readonly visited: boolean[][];
   /** 2D grid tracking which cells are marked as dead ends */
   protected readonly deadEnd: boolean[][];
-
-  /** Event target for keyboard event handling */
-  private readonly eventTarget = new EventTarget();
 
   /**
    * Creates a new Human solver with interactive controls and behavior options.
@@ -117,10 +120,25 @@ export class Human extends MazeSolver {
     this.keyHandler = this.initializeKeyboardHandler();
   }
 
-  //#region Keyboard Handler
-  /** Keyboard event handler function for capturing user input */
-  private readonly keyHandler: (event: KeyboardEvent) => void;
+  /**
+   * Restores the visual appearance of a cell based on its current state.
+   *
+   * Updates cell rendering to show dead ends (X marks), visited cells,
+   * or normal cell appearance depending on the cell's status.
+   *
+   * @param cell - The cell to restore visually
+   */
+  private restoreCell(cell: Cell): void {
+    this.maze.drawCell(cell);
+    if (this.deadEnd[cell.x][cell.y]) {
+      this.maze.drawX(this.maze.drawCell(cell), 'red');
+    } else if (this.visited[cell.x][cell.y]) {
+      this.maze.drawCell(cell);
+      this.maze.drawAvatar(cell, '#444444');
+    }
+  }
 
+  //#region Keyboard Handler
   /**
    * Initializes keyboard event handling for user input capture.
    *
@@ -160,18 +178,6 @@ export class Human extends MazeSolver {
       this.eventTarget.addEventListener('keydown', onKeyDown);
     });
   }
-
-  /**
-   * Programmatically sends a key event to the solver.
-   *
-   * Useful for automated testing or scripted navigation.
-   *
-   * @param key - The key string to simulate
-   */
-  public sendKey(key: string): void {
-    this.eventTarget.dispatchEvent(new CustomEvent('keydown', { detail: key }));
-  }
-  //#endregion
 
   /**
    * Analyzes possible destinations from the current cell position.
@@ -233,7 +239,8 @@ export class Human extends MazeSolver {
             destination.history.push(destination);
           }
           break;
-        } else if (next.length === 1) {
+        }
+        if (next.length === 1) {
           // single path
           if (this.options.finalDestination) {
             prev = { x: destination.x, y: destination.y, facing: destination.facing };
@@ -257,22 +264,16 @@ export class Human extends MazeSolver {
   }
 
   /**
-   * Restores the visual appearance of a cell based on its current state.
+   * Programmatically sends a key event to the solver.
    *
-   * Updates cell rendering to show dead ends (X marks), visited cells,
-   * or normal cell appearance depending on the cell's status.
+   * Useful for automated testing or scripted navigation.
    *
-   * @param cell - The cell to restore visually
+   * @param key - The key string to simulate
    */
-  private restoreCell(cell: Cell): void {
-    this.maze.drawCell(cell);
-    if (this.deadEnd[cell.x][cell.y]) {
-      this.maze.drawX(this.maze.drawCell(cell), 'red');
-    } else if (this.visited[cell.x][cell.y]) {
-      this.maze.drawCell(cell);
-      this.maze.drawAvatar(cell, '#444444');
-    }
+  public sendKey(key: string): void {
+    this.eventTarget.dispatchEvent(new CustomEvent('keydown', { detail: key }));
   }
+  //#endregion
 
   /**
    * Interactively solves the maze with human keyboard input.

@@ -87,7 +87,7 @@ export abstract class MessageController extends Random {
    * @param options - Optional styling and severity configuration
    */
   public sendMessage(message: string, { color, level }: MessageOptions = {}): void {
-    this.eventTarget.dispatchEvent('message', { message, color, level });
+    void this.eventTarget.dispatchEvent('message', { message, color, level });
   }
 
   /**

@@ -169,14 +169,14 @@ export class FibonaccisRabbits extends MazeSolver {
       }
 
       // Cull the overpopulation
-      for (const cell of this.maze
-        .cellsInMaze()
-        .filter((c) => currentCount[c.x][c.y] > this.populationLimit)) {
-        currentCount[cell.x][cell.y]--;
-        rabbits.splice(
-          rabbits.findIndex((r) => this.maze.isSame(cell, r.cell)),
-          1,
-        );
+      for (const cell of this.maze.cellsInMaze()) {
+        if (currentCount[cell.x][cell.y] > this.populationLimit) {
+          currentCount[cell.x][cell.y]--;
+          rabbits.splice(
+            rabbits.findIndex((r) => this.maze.isSame(cell, r.cell)),
+            1,
+          );
+        }
       }
 
       for (const cell of this.maze.cellsInMaze()) {

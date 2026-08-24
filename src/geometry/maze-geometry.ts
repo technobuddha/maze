@@ -1,5 +1,7 @@
 import {
   create2dArray,
+  isArray,
+  isArrayLike,
   manhattanDistance,
   modulo,
   type Rect,
@@ -229,7 +231,7 @@ export abstract class MazeGeometry extends MessageController {
   public initialTunnels(cell: Cell): Tunnels {
     return Object.fromEntries(
       Object.keys(this.initialWalls(cell)).map((d) => [d as Direction, false]),
-    ) as Record<Direction, false>;
+    );
   }
 
   /**
@@ -240,7 +242,7 @@ export abstract class MazeGeometry extends MessageController {
   public initialVia(cell: Cell): Via {
     return Object.fromEntries(
       Object.keys(this.initialWalls(cell)).map((d) => [d as Direction, false]),
-    ) as Record<Direction, false>;
+    );
   }
 
   /**
@@ -251,7 +253,7 @@ export abstract class MazeGeometry extends MessageController {
   public initialBarriers(cell: Cell): Wall {
     return Object.fromEntries(
       Object.keys(this.initialWalls(cell)).map((d) => [d as Direction, false]),
-    ) as Record<Direction, false>;
+    );
   }
 
   /**
@@ -371,7 +373,7 @@ export abstract class MazeGeometry extends MessageController {
   public rightTurn(cell: CellFacing): Direction[] {
     const rightTurn = this.matrix.rightTurn[cell.facing];
     if (rightTurn) {
-      return rightTurn.filter((d) => d in this.nexus(cell).walls);
+      return rightTurn.filter((d) => Object.hasOwn(this.nexus(cell).walls, d));
     }
 
     throw new Error(`"${cell.facing}" is not a valid facing`);
@@ -386,7 +388,7 @@ export abstract class MazeGeometry extends MessageController {
   public leftTurn(cell: CellFacing): Direction[] {
     const leftTurn = this.matrix.leftTurn[cell.facing];
     if (leftTurn) {
-      return leftTurn.filter((d) => d in this.nexus(cell).walls);
+      return leftTurn.filter((d) => Object.hasOwn(this.nexus(cell).walls, d));
     }
 
     throw new Error(`"${cell.facing}" is not a valid facing`);
@@ -403,7 +405,9 @@ export abstract class MazeGeometry extends MessageController {
     const straight = this.matrix.straight[cell.facing];
     if (straight) {
       const validDirections = straight.flatMap((dir) => {
-        const dirs = Array.from(dir).filter((d) => d in this.nexus(cell).walls) as Direction[];
+        const dirs = Array.from(dir).filter((d) =>
+          Object.hasOwn(this.nexus(cell).walls, d),
+        ) as Direction[];
         return bias ? dirs : dirs.reverse();
       });
       return validDirections;
@@ -653,7 +657,7 @@ export abstract class MazeGeometry extends MessageController {
     let move = this.matrix.move[this.cellKind(cell)][direction];
 
     if (move) {
-      if (Array.isArray(move)) {
+      if (isArray(move)) {
         move = move[modulo(cell.y, move.length)];
       }
 
@@ -767,7 +771,7 @@ export abstract class MazeGeometry extends MessageController {
       const portal = tunnels[facing];
       if (portal) {
         tunnel.push(target);
-        if (via[facing]) {
+        if (Object.hasOwn(via, facing) && isArrayLike(via[facing])) {
           tunnel.push(...via[facing]);
         }
         target = { ...portal };

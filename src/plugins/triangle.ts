@@ -30,11 +30,11 @@ export function trianglePlugin(maze: Maze): void {
   for (const cell of maze.cellsInMaze()) {
     const asx = cell.x - a.x;
     const asy = cell.y - a.y;
-    const sab = (b.x - a.x) * asy - (b.y - a.y) * asx > 0;
+    const sab = (b.x - a.x) * asy > (b.y - a.y) * asx;
 
     if (
-      (c.x - a.x) * asy - (c.y - a.y) * asx > 0 === sab ||
-      (c.x - b.x) * (cell.y - b.y) - (c.y - b.y) * (cell.x - b.x) > 0 !== sab
+      (c.x - a.x) * asy > (c.y - a.y) * asx === sab ||
+      (c.x - b.x) * (cell.y - b.y) > (c.y - b.y) * (cell.x - b.x) !== sab
     ) {
       maze.nexus(cell).mask = true;
     }

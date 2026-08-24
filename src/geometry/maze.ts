@@ -158,6 +158,16 @@ export type MazeProperties = MazeGeometryProperties & {
  */
 export abstract class Maze extends MazeGeometry {
   //#region Properties
+  /** Original entrance specification before resolution */
+  private readonly entranceSpec: MazeProperties['entrance'];
+  /** Original exit specification before resolution */
+  private readonly exitSpec: MazeProperties['exit'];
+  /** Plugin function for custom maze modifications */
+  protected plugin: MazeProperties['plugin'];
+  /** Drawing context for rendering the maze */
+  public drawing: MazeProperties['drawing'];
+  /** Complete color scheme with all required colors */
+  public readonly color: NonNullable<Required<MazeColors>>;
 
   /** The entrance point of the maze with position and facing direction */
   public entrance: Terminus = { x: -1, y: -1, facing: '!' };
@@ -191,17 +201,6 @@ export abstract class Maze extends MazeGeometry {
   public readonly showBridges: NonNullable<MazeProperties['showBridges']>;
   /** Whether to highlight unreachable cells */
   public readonly showUnreachables: boolean;
-
-  /** Original entrance specification before resolution */
-  private readonly entranceSpec: MazeProperties['entrance'];
-  /** Original exit specification before resolution */
-  private readonly exitSpec: MazeProperties['exit'];
-  /** Plugin function for custom maze modifications */
-  protected plugin: MazeProperties['plugin'];
-  /** Drawing context for rendering the maze */
-  public drawing: MazeProperties['drawing'];
-  /** Complete color scheme with all required colors */
-  public readonly color: NonNullable<Required<MazeColors>>;
   //#endregion
 
   //#region Construction
@@ -252,6 +251,20 @@ export abstract class Maze extends MazeGeometry {
     this.plugin = plugin;
 
     this.reset();
+  }
+
+  /**
+   * Parses a cell specification into a Cell object.
+   * Handles both direct Cell objects and Location strings by parsing them appropriately.
+   * @param pd - The cell specification (Cell object or Location string)
+   * @returns The parsed Cell object
+   */
+  private parseSpecification(pd: Cell | Location): Cell {
+    if (typeof pd === 'string') {
+      return this.parseLocation(pd);
+    }
+
+    return pd;
   }
 
   /**
@@ -329,10 +342,12 @@ export abstract class Maze extends MazeGeometry {
   public removeInteriorWalls(): void {
     for (const cell of this.cellsInMaze()) {
       const wall = this.nexus(cell).walls;
-      for (const direction of (Object.keys(wall) as Direction[]).filter((d) => wall[d])) {
-        const move = this.walk(cell, direction).target;
-        if (move && this.inMaze(move)) {
-          wall[direction] = false;
+      for (const direction of Object.keys(wall) as Direction[]) {
+        if (wall[direction] === true) {
+          const move = this.walk(cell, direction).target;
+          if (move && this.inMaze(move)) {
+            wall[direction] = false;
+          }
         }
       }
     }
@@ -436,12 +451,14 @@ export abstract class Maze extends MazeGeometry {
     while (queue.length > 0) {
       const cell = queue.shift()!;
 
-      for (const move of this.moves(cell, { wall: false }).filter(
-        ({ target }) => !visited[target.x][target.y],
-      )) {
-        visited[move.target.x][move.target.y] = true;
-        parent[move.target.x][move.target.y] = cell;
-        queue.push(move.target);
+      for (const move of this.moves(cell, { wall: false })) {
+        const { target } = move;
+
+        if (!visited[target.x][target.y]) {
+          visited[target.x][target.y] = true;
+          parent[target.x][target.y] = cell;
+          queue.push(target);
+        }
       }
     }
 
@@ -916,13 +933,13 @@ export abstract class Maze extends MazeGeometry {
     const { walls, barriers, elevated } = nexus;
 
     for (const direction of this.matrix.directions) {
-      if (walls[direction] === true || barriers[direction]) {
+      if (walls[direction] === true || Object.hasOwn(barriers, direction)) {
         this.drawWall(cell, direction, wallColor);
       } else if (walls[direction] === false) {
         const move = this.traverse(cell, direction);
         if (
           this.inMaze(move) &&
-          this.nexus(move).tunnels[this.opposite(move.facing)] &&
+          Object.hasOwn(this.nexus(move).tunnels, this.opposite(move.facing)) &&
           this.nexus(move).walls[this.opposite(move.facing)] === true
         ) {
           this.drawTunnel(cell, direction);
@@ -946,7 +963,7 @@ export abstract class Maze extends MazeGeometry {
     const { walls } = this.nexus(cell);
 
     for (const pillar of this.matrix.pillars) {
-      if (pillar[0] in walls && pillar[1] in walls) {
+      if (Object.hasOwn(walls, pillar[0]) && Object.hasOwn(walls, pillar[1])) {
         this.drawPillar(cell, pillar, color);
       }
     }
@@ -1225,20 +1242,6 @@ export abstract class Maze extends MazeGeometry {
 
     this.sendMessage(`Unable to find cell matching criteria "${p}"`, { level: 'warning' });
     return this.randomCell();
-  }
-
-  /**
-   * Parses a cell specification into a Cell object.
-   * Handles both direct Cell objects and Location strings by parsing them appropriately.
-   * @param pd - The cell specification (Cell object or Location string)
-   * @returns The parsed Cell object
-   */
-  private parseSpecification(pd: Cell | Location): Cell {
-    if (typeof pd === 'string') {
-      return this.parseLocation(pd);
-    }
-
-    return pd;
   }
   //#endregion
   //#region Bridge

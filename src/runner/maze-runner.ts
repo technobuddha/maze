@@ -103,6 +103,21 @@ let id = 0;
  * @category  Maze Runner
  */
 export class MazeRunner extends EventTarget {
+  /** Whether execution is currently active */
+  private playing = true;
+  /** Whether execution has been aborted */
+  private aborted = false;
+  /** Delay between execution steps in milliseconds */
+  private delay = 0;
+  /** Timer for automatic progression from observation phase */
+  private observationTimer: ReturnType<typeof setTimeout> | undefined =
+    undefined; /** Active step generator for the current phase */
+  private stepper: AsyncGenerator<void> | undefined = undefined;
+  /** Base execution speed for the current phase */
+  private baseSpeed = 1;
+  /** Current execution speed multiplier */
+  private speed = 1;
+
   /** The maze instance managed by this runner */
   public readonly maze: Maze;
   /** The generator instance for maze creation, if provided */
@@ -118,22 +133,8 @@ export class MazeRunner extends EventTarget {
   /** Play mode configuration for each phase of execution */
   public phasePlayMode: Record<Phase, PlayMode>;
 
-  /** Active step generator for the current phase */
-  private stepper: AsyncGenerator<void> | undefined = undefined;
-  /** Base execution speed for the current phase */
-  private baseSpeed = 1;
-  /** Current execution speed multiplier */
-  private speed = 1;
-  /** Whether execution is currently active */
-  private playing = true;
-  /** Whether execution has been aborted */
-  private aborted = false;
-  /** Delay between execution steps in milliseconds */
-  private delay = 0;
   /** Duration to observe the completed maze before auto-progression */
   public observationTime = 10000;
-  /** Timer for automatic progression from observation phase */
-  private observationTimer: ReturnType<typeof setTimeout> | undefined = undefined;
 
   /**
    * Creates a new MazeRunner with the specified configuration.
@@ -179,41 +180,6 @@ export class MazeRunner extends EventTarget {
       exit: 'fast',
       ...mode,
     };
-  }
-
-  /**
-   * Sets the playback mode and handles special mode behaviors.
-   *
-   * Updates the current play mode and triggers appropriate actions:
-   * - 'pause': Stops execution
-   * - 'refresh': Switches to exit phase and restarts
-   * - Other modes: Updates play mode and dispatches command event
-   *
-   * @param playMode - The new playback mode to set
-   */
-  public setMode(playMode: PlayMode): void {
-    switch (playMode) {
-      case 'pause': {
-        this.setPlayMode('pause');
-        break;
-      }
-
-      //@ts-expect-error fall-though is intended
-      case 'refresh': {
-        this.switchPhase('exit');
-      }
-
-      case 'step':
-      case 'play':
-      case 'fast':
-      case 'instant': {
-        this.setPlayMode(playMode);
-        this.dispatchEvent(new CustomEvent('command'));
-        break;
-      }
-
-      // no default
-    }
   }
 
   /**
@@ -370,6 +336,41 @@ export class MazeRunner extends EventTarget {
       };
       this.addEventListener('command', handler);
     });
+  }
+
+  /**
+   * Sets the playback mode and handles special mode behaviors.
+   *
+   * Updates the current play mode and triggers appropriate actions:
+   * - 'pause': Stops execution
+   * - 'refresh': Switches to exit phase and restarts
+   * - Other modes: Updates play mode and dispatches command event
+   *
+   * @param playMode - The new playback mode to set
+   */
+  public setMode(playMode: PlayMode): void {
+    switch (playMode) {
+      case 'pause': {
+        this.setPlayMode('pause');
+        break;
+      }
+
+      //@ts-expect-error fall-though is intended
+      case 'refresh': {
+        this.switchPhase('exit');
+      }
+
+      case 'step':
+      case 'play':
+      case 'fast':
+      case 'instant': {
+        this.setPlayMode(playMode);
+        this.dispatchEvent(new CustomEvent('command'));
+        break;
+      }
+
+      // no default
+    }
   }
 
   /**

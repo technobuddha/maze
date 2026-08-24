@@ -53,6 +53,8 @@ export type RobotProperties = RandomProperties & {
  * @category  Robot
  */
 export abstract class Robot extends Random implements Disposable {
+  private seekingWall = true;
+
   /** Color used for the robot avatar and visual indicators */
   public readonly color: string;
   /** Current cell position and facing direction */
@@ -72,7 +74,12 @@ export abstract class Robot extends Random implements Disposable {
   protected bias = true;
   protected pathSet = new SerializedSet<CellTunnel>();
 
-  private seekingWall = true;
+  /**
+   * Identifier for the algorithm implemented by this robot.
+   *
+   * Must be overridden by subclasses to specify the algorithm name.
+   */
+  public abstract algorithm: string;
 
   public constructor({
     maze,
@@ -102,13 +109,6 @@ export abstract class Robot extends Random implements Disposable {
 
     this.avatar = (cell, color) => this.maze.drawAvatar(cell, color);
   }
-
-  /**
-   * Identifier for the algorithm implemented by this robot.
-   *
-   * Must be overridden by subclasses to specify the algorithm name.
-   */
-  public abstract algorithm: string;
 
   /**
    * Gets the display name for this robot.

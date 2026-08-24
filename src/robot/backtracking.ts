@@ -32,9 +32,10 @@ export type BacktrackingRobotProperties = RobotProperties & {
  * @category  Backtracking
  */
 export class BacktrackingRobot extends Robot {
-  public readonly algorithm = 'backtracking';
   private readonly blocked: boolean[][];
   private readonly showMarks: boolean;
+
+  public readonly algorithm = 'backtracking';
 
   public constructor({ maze, blocked, showMarks = false, ...props }: BacktrackingRobotProperties) {
     super({ maze, ...props });
@@ -77,7 +78,7 @@ export class BacktrackingRobot extends Robot {
         ({ target }) =>
           !this.maze.isSame(target, this.previous) &&
           !this.blocked[target.x][target.y] &&
-          !this.history.some((cell) => this.maze.isSame(cell, target)),
+          this.history.every((cell) => !this.maze.isSame(cell, target)),
       );
 
     if (moves.length === 0) {

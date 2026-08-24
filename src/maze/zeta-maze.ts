@@ -36,32 +36,6 @@ export type ZetaMazeProperties = DotMazeProperties;
  */
 export class ZetaMaze extends DotMaze {
   /**
-   * Resets the maze and applies the frozen wall pattern.
-   *
-   * Extends the base reset functionality by calling the parent reset method
-   * and then applying the zeta-specific diagonal wall freezing pattern.
-   * This ensures that every maze generation starts with the characteristic
-   * frozen diagonal barriers that define the zeta maze structure.
-   */
-  public override reset(): void {
-    super.reset();
-    this.freezeWalls();
-  }
-
-  /**
-   * Draws intersections for a zeta maze cell with modified visibility.
-   *
-   * Overrides the parent intersection drawing to pass a `false` parameter,
-   * which modifies the visual representation of intersections in the zeta maze.
-   * This creates a different visual style compared to standard dot mazes.
-   *
-   * @param cell - The cell for which to draw intersections
-   */
-  public override drawIntersections(cell: Cell): void {
-    super.drawIntersections(cell, false);
-  }
-
-  /**
    * Applies the frozen diagonal wall pattern across the entire maze grid.
    *
    * Creates the characteristic zeta pattern by randomly choosing between two
@@ -88,5 +62,31 @@ export class ZetaMaze extends DotMaze {
         }
       }
     }
+  }
+
+  /**
+   * Resets the maze and applies the frozen wall pattern.
+   *
+   * Extends the base reset functionality by calling the parent reset method
+   * and then applying the zeta-specific diagonal wall freezing pattern.
+   * This ensures that every maze generation starts with the characteristic
+   * frozen diagonal barriers that define the zeta maze structure.
+   */
+  public override reset(): void {
+    super.reset();
+    this.freezeWalls();
+  }
+
+  /**
+   * Draws intersections for a zeta maze cell with modified visibility.
+   *
+   * Overrides the parent intersection drawing to pass a `false` parameter,
+   * which modifies the visual representation of intersections in the zeta maze.
+   * This creates a different visual style compared to standard dot mazes.
+   *
+   * @param cell - The cell for which to draw intersections
+   */
+  public override drawIntersections(cell: Cell): void {
+    super.drawIntersections(cell, false);
   }
 }

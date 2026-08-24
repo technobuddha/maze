@@ -198,6 +198,10 @@ export class TriangleMaze extends Maze {
     const normalX = { x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, xa, xb, xc, xd, xe, xf, xg, xh, xi };
     const normalY = { y0, y1, y2, y3, y4, y5, y6, y7, y8, y9, ya, yb };
 
+    if (kind === 0) {
+      return { ...normalX, ...normalY };
+    }
+
     // Inverted Y coordinates for downward triangles (kind 1)
     const invertY = {
       y0: yb - yb,
@@ -214,9 +218,6 @@ export class TriangleMaze extends Maze {
       yb: yb - y0,
     };
 
-    if (kind === 0) {
-      return { ...normalX, ...normalY };
-    }
     return { ...normalX, ...invertY };
   }
 

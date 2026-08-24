@@ -38,10 +38,11 @@ export type WallWalkingRobotProperties = Omit<RobotProperties, 'program'> & {
  * @category  Wall Walking
  */
 export class WallWalkingRobot extends Robot {
-  /** Algorithm identifier for this robot type */
-  public readonly algorithm = 'wall-walking';
   /** 2D array tracking visit count for each cell to detect loops */
   private readonly visits: number[][];
+
+  /** Algorithm identifier for this robot type */
+  public readonly algorithm = 'wall-walking';
 
   /**
    * Creates a new Wall Walking robot with specified turn preference.

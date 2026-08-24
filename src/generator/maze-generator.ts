@@ -99,6 +99,8 @@ export type MazeGeneratorProperties = RandomProperties & {
 export abstract class MazeGenerator extends Random {
   /** 2D array tracking which player has visited each cell (false = unvisited) */
   private readonly visited: (false | number)[][];
+  /** Unique identifier for tracking bridge instances */
+  protected bridgeId = 0;
   /** Array of state objects for each active player */
   protected readonly state: PlayerState[] = [];
   /** Index of the currently active player */
@@ -452,9 +454,6 @@ export abstract class MazeGenerator extends Random {
     }
   }
 
-  /** Unique identifier for tracking bridge instances */
-  protected bridgeId = 0;
-
   /**
    * Constructs a multi-level bridge from the current position.
    *
@@ -475,7 +474,7 @@ export abstract class MazeGenerator extends Random {
 
     const layout = this.randomPick(
       this.maze.bridges(current).filter(({ direction }) => {
-        if (direction in this.maze.nexus(current).walls) {
+        if (Object.hasOwn(this.maze.nexus(current).walls, direction)) {
           const cell = this.maze.traverse(current, direction);
           return this.maze.inMaze(cell) && this.visited[cell.x][cell.y] === false;
         }
@@ -493,7 +492,7 @@ export abstract class MazeGenerator extends Random {
 
       bridgeBuilding: while (true) {
         let direction = path[modulo(index++, path.length)];
-        if (!(direction in this.maze.nexus(probe).walls)) {
+        if (!Object.hasOwn(this.maze.nexus(probe).walls, direction)) {
           break;
         }
 
@@ -537,7 +536,7 @@ export abstract class MazeGenerator extends Random {
               ({ target }) =>
                 this.visited[target.x][target.y] === false &&
                 !this.maze.nexus(target).bridge &&
-                !bridge.some((b) => this.maze.isSame(target, b)),
+                bridge.every((b) => !this.maze.isSame(target, b)),
             ).length === 0
         ) {
           bridge.pop();
@@ -562,18 +561,17 @@ export abstract class MazeGenerator extends Random {
         const xBridge = [prev, ...bridge, next];
 
         for (const span of bridge) {
-          for (const traversal of this.maze
-            .traversals(span)
-            .filter(
-              (t) =>
-                !path.includes(t.direction) &&
-                !oPath.has(t.direction) &&
-                xBridge.every((x) => !this.maze.isSame(t.target, x)),
-            )) {
-            if (!(traversal.direction in tunnels)) {
-              tunnels[traversal.direction] = [];
+          for (const traversal of this.maze.traversals(span)) {
+            if (
+              !path.includes(traversal.direction) &&
+              !oPath.has(traversal.direction) &&
+              xBridge.every((x) => !this.maze.isSame(traversal.target, x))
+            ) {
+              if (!Object.hasOwn(tunnels, traversal.direction)) {
+                tunnels[traversal.direction] = [];
+              }
+              tunnels[traversal.direction]!.push({ ...traversal.target, from: { ...span } });
             }
-            tunnels[traversal.direction]!.push({ ...traversal.target, from: { ...span } });
           }
           prev = span;
         }
@@ -587,7 +585,7 @@ export abstract class MazeGenerator extends Random {
 
           if (key2) {
             if (tunnels[key1]?.length !== tunnels[key2]?.length) {
-              if (tunnels[key1] && tunnels[key2]) {
+              if (Object.hasOwn(tunnels, key1) && Object.hasOwn(tunnels, key2)) {
                 logger.error(
                   `@{${current.x},${current.y}} Tunnel length mismatch for ${key1} and ${key2}`,
                   { ...tunnels },
@@ -606,7 +604,7 @@ export abstract class MazeGenerator extends Random {
               }
             }
 
-            if (key2 in tunnels) {
+            if (Object.hasOwn(tunnels, key2)) {
               for (let i = 0; i < tunnels[key1]!.length; i++) {
                 const t1 = tunnels[key1]![i];
                 const t2 = tunnels[key2]![i];
@@ -667,6 +665,7 @@ export abstract class MazeGenerator extends Random {
 
       for (const direction of nexus.wallDirections()) {
         // If we have a tunnel under a wall...
+        // eslint-disable-next-line unicorn/no-computed-property-existence-check
         if (bridge && walls[direction] && tunnels[direction]) {
           // If a cell has a tunnel look at the connecting cell
           const cell2 = this.maze.traverse(cell, direction);
@@ -675,7 +674,7 @@ export abstract class MazeGenerator extends Random {
 
             // Check to see if the neighboring cell doesn't have a wall (we have a wall)
             // which means there is a tunnel...
-            if (!nexus2.walls[this.maze.opposite(cell2.facing)]) {
+            if (!Object.hasOwn(nexus2.walls, this.maze.opposite(cell2.facing))) {
               // mark this bridge is active
               bridges.add(bridge);
 

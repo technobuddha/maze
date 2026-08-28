@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@technobuddha/maze",
-  "version": "0.2.0-5",
+  "version": "0.2.0-6",
   "description": "Maze generation and solving library.",
   "license": "MIT",
   "type": "module",
@@ -33,15 +33,15 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@technobuddha/library": "2.1.0-190",
+    "@technobuddha/library": "2.1.0-191",
     "colorjs.io": "0.6.1"
   },
   "devDependencies": {
     "@cspell/cspell-types": "10.1.1",
-    "@technobuddha/project": "1.0.0-197",
+    "@technobuddha/project": "1.0.0-198",
     "@types/node": "26.3.0",
     "cspell": "10.1.1",
-    "css-module-type-definitions": "2.0.0-46",
+    "css-module-type-definitions": "2.0.0-47",
     "husky": "9.1.7",
     "tsx": "4.23.12",
     "typescript": "6.0.3"
